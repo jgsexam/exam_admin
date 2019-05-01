@@ -527,6 +527,7 @@ export default {
       teacherApi.get(id).then(res => {
         if (res.code == 200) {
           this.teacher = res.data;
+          this.imageUrl = this.teacher.teacherImg
           this.dialogTitle = "修改教师";
           this.dialogFormVisible = true;
           this.isdisabledFn = true;

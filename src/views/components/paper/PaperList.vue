@@ -143,22 +143,22 @@
       </el-table-column>
       <el-table-column sortable="custom" label="组卷" width="85px">
         <template slot-scope="scope">
-          <el-tag type="danger" v-if="scope.row.paperType == 0">未组卷</el-tag>
+          <el-tag type="info" v-if="scope.row.paperType == 0">未组卷</el-tag>
           <el-tag type="warning" v-if="scope.row.paperType == 1">手动组卷</el-tag>
           <el-tag type="success" v-if="scope.row.paperType == 2">智能组卷</el-tag>
         </template>
       </el-table-column>
       <el-table-column sortable="custom" label="提交组卷">
         <template slot-scope="scope">
-          <el-tag type="success" v-if="scope.row.paperSubmit == 0">未提交</el-tag>
-          <el-tag v-if="scope.row.paperSubmit == 1">已提交</el-tag>
+          <el-tag type="info" v-if="scope.row.paperSubmit == 0">未提交</el-tag>
+          <el-tag type="success" v-if="scope.row.paperSubmit == 1">已提交</el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="paperDifficulty" sortable="custom" label="难度系数"></el-table-column>
       <el-table-column prop="paperScore" sortable="custom" label="总分"></el-table-column>
       <el-table-column prop="paperCreateTime" sortable="custom" label="创建时间"></el-table-column>
       <el-table-column prop="paperUpdateTime" sortable="custom" label="修改时间"></el-table-column>
-      <el-table-column fixed="right" label="操作">
+      <el-table-column fixed="right" label="操作" width="100px">
         <template class="paper-do" slot-scope="scope">
           <el-dropdown>
             <el-button type="primary" size="mini">
@@ -170,19 +170,22 @@
                 <el-button size="mini" type="success" @click="toUpdate(scope.row.paperId)">编辑</el-button>
               </el-dropdown-item>
               <el-dropdown-item v-if="scope.row.paperType == 0">
-                <el-button size="mini" type="warning" @click="toUpdate(scope.row.paperId)">智能组卷</el-button>
+                <el-button size="mini" type="success" @click="toUpdate(scope.row.paperId)">智能组卷</el-button>
               </el-dropdown-item>
-              <el-dropdown-item v-if="scope.row.paperType != 2">
-                <el-button size="mini" type="info" @click="toHand(scope.row)">手动组卷</el-button>
+              <el-dropdown-item v-if="scope.row.paperType != 2 && scope.row.paperSubmit == 0">
+                <el-button size="mini" type="warning" @click="toHand(scope.row)">手动组卷</el-button>
               </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button size="mini" type="success" @click="toHand(scope.row)">导出试卷</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
+              <el-dropdown-item v-if="scope.row.paperType == 1 && scope.row.paperSubmit == 0">
                 <el-button size="mini" type="primary" @click="toUpdateQuestion(scope.row)">修改题目</el-button>
               </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button size="mini" type="primary" @click="toHand(scope.row)">预览试卷</el-button>
+              <el-dropdown-item v-if="scope.row.paperSubmit == 1">
+                <el-button size="mini" type="primary" @click="toRead(scope.row)">预览试卷</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item v-if="scope.row.paperType == 1 && scope.row.paperSubmit == 0">
+                <el-button size="mini" type="primary" @click="submitPaper(scope.row)">提交组卷</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item v-if="scope.row.paperSubmit == 1">
+                <el-button size="mini" type="primary" @click="downloadPaper(scope.row)">下载试卷</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button size="mini" type="danger" @click="deleteById(scope.row.paperId)">删除</el-button>
@@ -415,6 +418,7 @@
       <!-- 题目列表结束 -->
     </el-dialog>
     <!-- 手动组卷弹窗结束 -->
+
   </div>
 </template>
 <script>
@@ -427,7 +431,7 @@ import knowledgeApi from "@/api/knowledge"
 import questionApi from "@/api/question"
 
 export default {
-  data() {
+  data () {
     return {
       timeInterval: null, // 学年度时间区间数组
       dialogFormVisible: false, // 弹出层表单隐藏
@@ -502,36 +506,36 @@ export default {
     };
   },
   methods: {
-    handleSizeChange(val) {
+    handleSizeChange (val) {
       this.page.currentCount = val;
       this.list();
     },
-    handleCurrentChange(val) {
+    handleCurrentChange (val) {
       this.page.currentPage = val;
       this.list();
     },
-    changeTestSize(val) {
+    changeTestSize (val) {
       this.page.currentCount = val;
       this.search();
     },
-    changeTestCurrent(val) {
+    changeTestCurrent (val) {
       this.page.currentPage = val;
       this.search();
     },
-    sortHandler(column) {
+    sortHandler (column) {
       // 排序查询
       this.page.sortName = column.prop;
       this.page.sortOrder = column.order;
       this.list();
     },
-    sortQuestion(column) {
+    sortQuestion (column) {
       // 排序查询
       console.log(column);
       this.testPage.sortName = column.prop;
       this.testPage.sortOrder = column.order;
       this.searchQuestion();
     },
-    save() {
+    save () {
       // 保存或修改
       if (this.paper.paperId == '') {
         paperApi.save(this.paper).then(res => {
@@ -551,7 +555,7 @@ export default {
         })
       }
     },
-    list() {
+    list () {
       // 分页查询
       if (this.timeInterval != null) {
         this.page.params.startTime = this.timeInterval[0]
@@ -567,7 +571,7 @@ export default {
         }
       })
     },
-    toUpdate(id) {
+    toUpdate (id) {
       // 打开弹窗，进行修改
       this.dialogTitle = "创建试卷"
       paperApi.get(id).then(res => {
@@ -577,12 +581,12 @@ export default {
         }
       })
     },
-    toAdd() {
+    toAdd () {
       this.paper.paperId = ''
       this.dialogTitle = "创建试卷"
       this.dialogFormVisible = true
     },
-    deleteById(id) {
+    deleteById (id) {
       // 根据id删除
       this.$confirm("确定删除这条记录?", "提示", {
         confirmButtonText: "确定",
@@ -597,16 +601,16 @@ export default {
         })
       })
     },
-    search() {
+    search () {
       this.list();
     },
-    getCollege() {
+    getCollege () {
       // 查询所有的学院，用于下拉列表
       dictApi.all({ dictType: 'college' }).then(res => {
         this.collegeList = res.data
       })
     },
-    getMajor(collegeId) {
+    getMajor (collegeId) {
       if (collegeId == '') {
         // 查询所有的专业，用于下拉列表
         dictApi.all({ dictType: 'major' }).then(res => {
@@ -619,13 +623,13 @@ export default {
         })
       }
     },
-    getBank() {
+    getBank () {
       // 查询所有的题库，用于下拉列表
       bankApi.all().then(res => {
         this.bankList = res.data
       })
     },
-    toHand(paper) {
+    toHand (paper) {
       this.testPage.params.bankId = paper.paperBank
       this.config.configPaper = paper.paperId
       this.getKnowledge(paper.paperBank)
@@ -633,7 +637,7 @@ export default {
       // 打开手动组卷弹窗
       this.dialogHand = true
     },
-    searchQuestion() {
+    searchQuestion () {
       // 查询题目列表
       this.$store.commit("SET_LOADING", true)
       questionApi.search(this.testPage).then(res => {
@@ -643,7 +647,7 @@ export default {
         this.config.configType = res.data.params.typeId
       })
     },
-    getKnowledge(bankId) {
+    getKnowledge (bankId) {
       // 查询所有知识点
       knowledgeApi.allByBank(bankId).then(res => {
         this.knowList = res.data
@@ -654,7 +658,7 @@ export default {
         }
       })
     },
-    getType(knowId) {
+    getType (knowId) {
       // 查询所有题型
       if (knowId == '') {
         typeApi.all().then(res => {
@@ -676,7 +680,7 @@ export default {
         })
       }
     },
-    addToPaper(questionId) {
+    addToPaper (questionId) {
       this.$confirm("确定加入到本试卷中?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -695,27 +699,52 @@ export default {
         })
       })
     },
-    selectQuestion(questionList) {
+    selectQuestion (questionList) {
       // 多选框选择状态改变
       let ids = questionList.map(x => { return { questionId: x.id } })
       this.config.questionList = ids
     },
-    getQuestionNum(paperId) {
+    getQuestionNum (paperId) {
       // 查询当前试卷的题目数量
       configApi.getQuestionNum(paperId).then(res => {
         this.questionNumConfig = res.data
       })
     },
-    toUpdateQuestion(paper) {
+    toUpdateQuestion (paper) {
+      // 跳转到修改题目也没
       this.$router.push({
         name: 'paperQuestion',
         params: {
           paperId: paper.paperId
         }
       })
+    },
+    submitPaper (paper) {
+      // 提交组卷
+      this.$confirm("提交后不可修改，确定提交?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "success"
+      }).then(() => {
+        this.$store.commit("SET_LOADING", true)
+        paperApi.submitPaper(paper.paperId).then(res => {
+          if (res.code == 200) {
+            this.$message.success(res.msg)
+            this.list()
+          }
+        })
+      })
+    },
+    downloadPaper (paper) {
+      // 下载试卷
+      location.href = paper.paperDownload
+    },
+    toRead (paper) {
+      // 预览试卷
+      open('http://view.officeapps.live.com/op/view.aspx?src=' + paper.paperDownload)
     }
   },
-  created() {
+  created () {
     this.list()
     this.getCollege()
     this.getBank()
@@ -748,5 +777,13 @@ export default {
 
 .paper-question-div {
   color: #67c23a;
+}
+
+.read-dialog {
+  height: 85%;
+}
+
+.dialog-content {
+  height: 100%;
 }
 </style>

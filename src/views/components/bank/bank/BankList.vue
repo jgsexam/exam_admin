@@ -85,7 +85,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="上传封面:">
-          <el-upload class="avatar-uploader" action="http://tn20898453.51mypc.cn:48217/upload" :show-file-list="false"
+          <el-upload class="avatar-uploader" action="http://tn20898453.51mypc.cn/upload" :show-file-list="false"
             :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload" name="file" v-loading="imgLoading">
             <img v-if="imageUrl" :src="imageUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>

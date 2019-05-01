@@ -1,6 +1,6 @@
 <template>
   <div v-loading="this.$store.getters.loading">
-    <div class="paper-title">
+    <div class="paper-title" v-if="paper.paperStartYear!=undefined">
       {{
       paper.paperStartYear + '至' + paper.paperEndYear + '学年度' +
       '第' + paper.paperSeme + '学期'+paper.bank.bankName+'期末考试试卷 ' +
@@ -22,23 +22,13 @@
           <el-card class="card-box">
             <div slot="header" class="clearfix">
               <pre style="float: left; padding-top: 10px; line-height: 10px">{{ (index + 1) + '. ' + question.choiceTitle + '. (' + question.choiceScore + '分)' }}</pre>
-              <el-dropdown style="float: right; margin-top: 8px">
-                <el-button type="primary" size="mini">
-                  操作
-                  <i class="el-icon-arrow-down el-icon--right"></i>
-                </el-button>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>
-                    <el-button size="mini" type="success" @click="toUpdate(question.choiceId)">编辑</el-button>
-                  </el-dropdown-item>
-                  <el-dropdown-item>
-                    <el-button size="mini" type="primary" @click="lookResolve(question)">查看解析</el-button>
-                  </el-dropdown-item>
-                  <el-dropdown-item>
-                    <el-button size="mini" type="danger" @click="deleteById(question.choiceId)">删除</el-button>
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
+              <div style="float: right; margin-top: 8px">
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="deleteByPaperAndQuestionId(config.configPaper, question.choiceId)"
+                >删除</el-button>
+              </div>
             </div>
             <div
               v-for="answer in question.choiceAnswer"
@@ -69,23 +59,13 @@
           <el-card class="card-box">
             <div slot="header" class="clearfix">
               <pre style="float: left; padding-top: 10px; line-height: 10px">{{ (index + 1) + '. ' + question.tfTitle + '. (' + question.tfScore + '分)' }}</pre>
-              <el-dropdown style="float: right; margin-top: 8px">
-                <el-button type="primary" size="mini">
-                  操作
-                  <i class="el-icon-arrow-down el-icon--right"></i>
-                </el-button>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>
-                    <el-button size="mini" type="success" @click="toUpdate(question.tfId)">编辑</el-button>
-                  </el-dropdown-item>
-                  <el-dropdown-item>
-                    <el-button size="mini" type="primary" @click="lookResolve(question)">查看解析</el-button>
-                  </el-dropdown-item>
-                  <el-dropdown-item>
-                    <el-button size="mini" type="danger" @click="deleteById(question.tfId)">删除</el-button>
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
+              <div style="float: right; margin-top: 8px">
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="deleteByPaperAndQuestionId(config.configPaper, question.tfId)"
+                >删除</el-button>
+              </div>
             </div>
             <div class="bottom clearfix">
               <div style="color: red">答案：{{ question.tfTrue == 1 ? '正确' : '错误' }}</div>
@@ -114,23 +94,13 @@
                 class="question-content"
                 v-html="(index + 1) + '. ' + question.compTitle + '. (' + question.compScore + '分)' "
               ></pre>
-              <el-dropdown style="float: right; margin-top: 8px">
-                <el-button type="primary" size="mini">
-                  操作
-                  <i class="el-icon-arrow-down el-icon--right"></i>
-                </el-button>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>
-                    <el-button size="mini" type="success" @click="toUpdate(question.compId)">编辑</el-button>
-                  </el-dropdown-item>
-                  <el-dropdown-item>
-                    <el-button size="mini" type="primary" @click="lookResolve(question)">查看解析</el-button>
-                  </el-dropdown-item>
-                  <el-dropdown-item>
-                    <el-button size="mini" type="danger" @click="deleteById(question.compId)">删除</el-button>
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
+              <div style="float: right; margin-top: 8px">
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="deleteByPaperAndQuestionId(config.configPaper, question.compId)"
+                >删除</el-button>
+              </div>
             </div>
             <div class="bottom clearfix">
               <div style="margin-top: 8px;">
@@ -155,23 +125,13 @@
           <el-card class="card-box">
             <div slot="header" class="clearfix">
               <pre style="float: left; padding-top: 10px; line-height: 10px">{{ (index + 1) + '. ' + code.codeTitle + '. (' + code.codeScore + '分)' }}</pre>
-              <el-dropdown style="float: right; margin-top: 8px">
-                <el-button type="primary" size="mini">
-                  操作
-                  <i class="el-icon-arrow-down el-icon--right"></i>
-                </el-button>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>
-                    <el-button size="mini" type="success" @click="toUpdate(code.codeId)">编辑</el-button>
-                  </el-dropdown-item>
-                  <el-dropdown-item>
-                    <el-button size="mini" type="primary" @click="lookResolve(code)">解析</el-button>
-                  </el-dropdown-item>
-                  <el-dropdown-item>
-                    <el-button size="mini" type="danger" @click="deleteById(code.codeId)">删除</el-button>
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
+              <div style="float: right; margin-top: 8px">
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="deleteByPaperAndQuestionId(config.configPaper, question.codeId)"
+                >删除</el-button>
+              </div>
             </div>
             <div
               v-for="answer in code.answerList"
@@ -202,23 +162,13 @@
           <el-card class="card-box">
             <div slot="header" class="clearfix">
               <pre style="float: left; padding-top: 10px; line-height: 10px">{{ (index + 1) + '. ' + question.questionTitle + '. (' + question.questionScore + '分)' }}</pre>
-              <el-dropdown style="float: right; margin-top: 8px">
-                <el-button type="primary" size="mini">
-                  操作
-                  <i class="el-icon-arrow-down el-icon--right"></i>
-                </el-button>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>
-                    <el-button size="mini" type="success" @click="toUpdate(question.questionId)">编辑</el-button>
-                  </el-dropdown-item>
-                  <el-dropdown-item>
-                    <el-button size="mini" type="primary" @click="lookResolve(question)">解析</el-button>
-                  </el-dropdown-item>
-                  <el-dropdown-item>
-                    <el-button size="mini" type="danger" @click="deleteById(question.questionId)">删除</el-button>
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
+              <div style="float: right; margin-top: 8px">
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="deleteByPaperAndQuestionId(config.configPaper, question.questionId)"
+                >删除</el-button>
+              </div>
             </div>
             <div
               v-for="answer in question.answerList"
@@ -243,13 +193,17 @@
       </div>
       <!-- 主观题列表结束 -->
     </el-card>
+    <div style="position:fixed;bottom:50px;right:50px">
+      <el-button type="primary">提交组卷</el-button>
+    </div>
   </div>
 </template>
 
 <script>
 import paperApi from '@/api/paper'
+import paperConfigQuestionApi from '@/api/paperConfigQuestion'
 export default {
-  data() {
+  data () {
     return {
       paperId: this.$route.params.paperId, // 试卷id
       paper: { // 试卷数据
@@ -261,7 +215,7 @@ export default {
     }
   },
   methods: {
-    list() {
+    list () {
       // 查询试卷中所有题目（不分页）
       this.$store.commit('SET_LOADING', true)
       paperApi.questionList(this.paperId).then(res => {
@@ -269,9 +223,24 @@ export default {
           this.paper = res.data
         }
       })
+    },
+    deleteByPaperAndQuestionId (paperId, questionId) {
+      this.$confirm("确定将此题从试卷中移除？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "error"
+      }).then(() => {
+        this.$store.commit("SET_LOADING", true)
+        paperConfigQuestionApi.deleteByPaperAndQuestionId(paperId, questionId).then(res => {
+          if (res.code == 200) {
+            this.$message.success(res.msg)
+            this.list()
+          }
+        })
+      })
     }
   },
-  created() {
+  created () {
     this.list()
   }
 }

@@ -39,5 +39,11 @@ export default {
       url: `/${group_name}/questionList/${paperId}`,
       method: 'get'
     })
+  },
+  submitPaper(paperId) {
+    return request({
+      url: `/${group_name}/submit/${paperId}`,
+      method: 'get'
+    })
   }
 }

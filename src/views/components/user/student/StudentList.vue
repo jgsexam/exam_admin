@@ -451,6 +451,7 @@ export default {
       stuApi.get(id).then(res => {
         if (res.code == 200) {
           this.student = res.data;
+          this.imageUrl = this.student.stuImg
           this.dialogTitle = "修改学生";
           this.dialogFormVisible = true;
           this.isdisabledFn = true;
