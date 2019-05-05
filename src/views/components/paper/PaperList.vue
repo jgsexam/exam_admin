@@ -170,7 +170,7 @@
                 <el-button size="mini" type="success" @click="toUpdate(scope.row.paperId)">编辑</el-button>
               </el-dropdown-item>
               <el-dropdown-item v-if="scope.row.paperType == 0">
-                <el-button size="mini" type="success" @click="toUpdate(scope.row.paperId)">智能组卷</el-button>
+                <el-button size="mini" type="success" @click="toGa(scope.row)">智能组卷</el-button>
               </el-dropdown-item>
               <el-dropdown-item v-if="scope.row.paperType != 2 && scope.row.paperSubmit == 0">
                 <el-button size="mini" type="warning" @click="toHand(scope.row)">手动组卷</el-button>
@@ -419,6 +419,67 @@
     </el-dialog>
     <!-- 手动组卷弹窗结束 -->
 
+    <!-- 智能组卷弹窗 -->
+    <el-dialog title="智能组卷" :visible.sync="dialogGa">
+      <el-form :model="gaPaper" size="mini" v-loading="this.$store.getters.loading">
+        <el-form-item :inline="true" v-for="(config, index) in gaPaper.configList" :key="index">
+          <div class="input-div">
+            <h2 style="text-align: center;">题型 {{ index+1 }}</h2>
+            <el-form-item label="难度系数" label-width="80px">
+              <el-rate
+                v-model="config.difficulty"
+                show-score
+                text-color="#ff9900"
+                score-template="{value}"
+              ></el-rate>
+            </el-form-item>
+            <el-form-item label="分值" label-width="80px">
+              <el-input v-model="config.totalScore" clearable placeholder="请输入分值"></el-input>
+            </el-form-item>
+            <el-form-item label="题量" label-width="80px">
+              <el-input v-model="config.questionNum" clearable placeholder="请输入题目数"></el-input>
+            </el-form-item>
+            <el-form-item label="知识点" label-width="80px">
+              <el-select
+                v-model="config.knowledgeIds"
+                filterable
+                placeholder="请选择"
+                clearable
+                multiple
+                @change="getGaType"
+              >
+                <el-option
+                  v-for="know in knowList"
+                  :key="know.knowId"
+                  :label="know.knowName"
+                  :value="know.knowId"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="题型" label-width="80px">
+              <el-select v-model="config.typeId" filterable placeholder="请选择">
+                <el-option
+                  v-for="type in typeList"
+                  :key="type.typeId"
+                  :label="type.typeName"
+                  :value="type.typeId"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <div class="delete-div">
+              <el-button @click.prevent="removeConfig(config)" type="danger">删除</el-button>
+            </div>
+          </div>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button type="primary" @click="gaSubmit">提交</el-button>
+          <el-button @click="addConfig">添题型题</el-button>
+          <el-button @click="dialogGa=false">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+    <!-- 智能组卷弹窗结束 -->
   </div>
 </template>
 <script>
@@ -436,6 +497,7 @@ export default {
       timeInterval: null, // 学年度时间区间数组
       dialogFormVisible: false, // 弹出层表单隐藏
       dialogHand: false, // 手动组卷弹窗
+      dialogGa: false, // 智能组卷弹窗
       dialogTitle: "创建试卷", // 弹出层标题
       page: { // 试卷分页对象
         currentPage: 1,
@@ -502,7 +564,21 @@ export default {
         ]
       },
       questionNumConfig: [ // 显示题目数量
-      ]
+      ],
+      gaPaper: { // 智能组卷
+        paperId: '', // 试卷id
+        configList: [ // 配置列表
+          {
+            totalScore: 0, // 总分
+            questionNum: 0, // 题目数
+            difficulty: 1, // 难度
+            typeId: '', // 题型
+            knowledgeIds: [ // 知识点列表
+
+            ]
+          }
+        ]
+      },
     };
   },
   methods: {
@@ -742,6 +818,53 @@ export default {
     toRead (paper) {
       // 预览试卷
       open('http://view.officeapps.live.com/op/view.aspx?src=' + paper.paperDownload)
+    },
+    toGa (paper) {
+      // 打开智能组卷弹窗
+      this.gaPaper.paperId = paper.paperId
+      this.getKnowledge(paper.paperBank)
+      this.dialogGa = true
+    },
+    getGaType (ids) {
+      // 获取到选中的知识点，去查询题型
+      typeApi.allByKnowIds(ids).then(res => {
+        this.typeList = res.data
+      })
+    },
+    removeConfig (item) {
+      // 删除选项
+      var index = this.gaPaper.configList.indexOf(item)
+      if (index !== -1) {
+        this.gaPaper.configList.splice(index, 1)
+      }
+    },
+    addConfig () {
+      // 添加选项
+      this.gaPaper.configList.push({
+        "totalScore": 0,
+        "questionNum": 0,
+        "difficulty": 1,
+        "typeId": "",
+        "knowledgeIds": [
+        ]
+      });
+    },
+    gaSubmit () {
+      // 提交智能组卷
+      this.$confirm("智能组卷提交后不可修改，确定提交?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "success"
+      }).then(() => {
+        this.$store.commit("SET_LOADING", true)
+        paperApi.submitPaperGa(this.gaPaper).then(res => {
+          if (res.code == 200) {
+            this.$message.success(res.msg)
+            this.dialogGa = false
+            this.list()
+          }
+        })
+      })
     }
   },
   created () {
@@ -786,4 +909,16 @@ export default {
 .dialog-content {
   height: 100%;
 }
+
+.input-div {
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 0 5px #ccc;
+}
+
+.delete-div {
+  text-align: right;
+  position: relative;
+}
+
 </style>

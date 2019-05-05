@@ -45,5 +45,12 @@ export default {
       url: `/${group_name}/submit/${paperId}`,
       method: 'get'
     })
+  },
+  submitPaperGa(gaPaper) {
+    return request({
+      url: `/${group_name}/gaSubmit`,
+      method: 'post',
+      data: gaPaper
+    })
   }
 }

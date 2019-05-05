@@ -52,6 +52,13 @@ export default {
       method: 'get'
     })
   },
+  allByKnowIds(knowIds) {
+    return request({
+      url: `/${group_name}/all`,
+      method: 'post',
+      data: knowIds
+    })
+  },
   allByKnow(knowId) {
     return request({
       url: `/${group_name}/all/${knowId}`,
