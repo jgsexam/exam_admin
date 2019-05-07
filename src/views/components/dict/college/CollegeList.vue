@@ -10,7 +10,7 @@
         </el-form-item>
       </el-form>
       <hr>
-      <el-button type="primary" size="mini" @click="toAdd">添加</el-button>
+      <el-button type="primary" size="mini" @click="toAdd" v-if="this.$store.getters.auths.indexOf('sys:college:add') >= 0">添加</el-button>
     </div>
     <el-table
       :data="page.list"
@@ -32,13 +32,13 @@
             </el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>
-                <el-button size="mini" type="success" @click="toUpdate(scope.row.dictId)">编辑</el-button>
+                <el-button size="mini" type="success" @click="toUpdate(scope.row.dictId)" v-if="this.$store.getters.auths.indexOf('sys:college:update') >= 0">编辑</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button size="mini" type="primary" @click="getMajor(scope.row.dictId)">查看专业</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
-                <el-button size="mini" type="danger" @click="toDelete(scope.row.dictId)">删除</el-button>
+                <el-button size="mini" type="danger" @click="toDelete(scope.row.dictId)" v-if="this.$store.getters.auths.indexOf('sys:college:delete') >= 0">删除</el-button>
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>

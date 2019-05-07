@@ -66,7 +66,7 @@
       <!-- 搜索部分结束 -->
 
       <hr>
-      <el-button type="primary" size="mini" @click="toAdd">添加</el-button>
+      <el-button type="primary" size="mini" @click="toAdd" v-if="this.$store.getters.auths.indexOf('user:teacher:add') >= 0">添加</el-button>
     </div>
 
     <!-- 列表开始 -->
@@ -102,16 +102,16 @@
             </el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>
-                <el-button size="mini" type="success" @click="toUpdate(scope.row.teacherId)">编辑</el-button>
+                <el-button size="mini" type="success" @click="toUpdate(scope.row.teacherId)" v-if="this.$store.getters.auths.indexOf('user:teacher:update') >= 0">编辑</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button size="mini" type="primary" @click="getDetails(scope.row.teacherId)">查看详情</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
-                <el-button size="mini" type="primary" @click="checkRole(scope.row.teacherId)">修改角色</el-button>
+                <el-button size="mini" type="primary" @click="checkRole(scope.row.teacherId)" v-if="this.$store.getters.auths.indexOf('user:teacher:role') >= 0">修改角色</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
-                <el-button size="mini" type="danger" @click="toDelete(scope.row.teacherId)">删除</el-button>
+                <el-button size="mini" type="danger" @click="toDelete(scope.row.teacherId)" v-if="this.$store.getters.auths.indexOf('user:teacher:delete') >= 0">删除</el-button>
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -640,6 +640,7 @@ export default {
     },
     checkRole(id) {
       this.checkTeacher = id;
+      this.teacherRoles = []
       TeacherRoleApi.roleList(id).then(res => {
         if (res.code == 200) {
           this.checkIds = res.data;

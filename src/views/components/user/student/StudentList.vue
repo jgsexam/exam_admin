@@ -56,7 +56,7 @@
       <!-- 搜索部分结束 -->
 
       <hr>
-      <el-button type="primary" size="mini" @click="toAdd">添加</el-button>
+      <el-button type="primary" size="mini" @click="toAdd" v-if="this.$store.getters.auths.indexOf('user:student:add') >= 0">添加</el-button>
     </div>
 
     <!-- 列表开始 -->
@@ -91,13 +91,13 @@
             </el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>
-                <el-button size="mini" type="success" @click="toUpdate(scope.row.stuId)">编辑</el-button>
+                <el-button size="mini" type="success" @click="toUpdate(scope.row.stuId)" v-if="this.$store.getters.auths.indexOf('user:student:update') >= 0">编辑</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button size="mini" type="primary" @click="getDetails(scope.row.stuId)">查看详情</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
-                <el-button size="mini" type="danger" @click="toDelete(scope.row.stuId)">删除</el-button>
+                <el-button size="mini" type="danger" @click="toDelete(scope.row.stuId)" v-if="this.$store.getters.auths.indexOf('user:student:delete') >= 0">删除</el-button>
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>

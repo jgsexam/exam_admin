@@ -11,7 +11,7 @@
         </el-form-item>
       </el-form>
       <hr>
-      <el-button type="primary" size="mini" @click="toAdd">添加</el-button>
+      <el-button type="primary" size="mini" @click="toAdd" v-if="this.$store.getters.auths.indexOf('know:add') >= 0">添加</el-button>
     </div>
     <!-- 搜索框结束 -->
 
@@ -45,13 +45,13 @@
                   </el-button>
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item>
-                      <el-button size="mini" type="success" @click="toUpdate(scope.row.knowId)">编辑</el-button>
+                      <el-button size="mini" type="success" @click="toUpdate(scope.row.knowId)" v-if="this.$store.getters.auths.indexOf('know:update') >= 0">编辑</el-button>
                     </el-dropdown-item>
                     <el-dropdown-item>
-                      <el-button type="primary" size="mini" @click="toType(scope.row.knowId)">查看题型</el-button>
+                      <el-button type="primary" size="mini" @click="toType(scope.row.knowId)" v-if="this.$store.getters.auths.indexOf('know:type:list') >= 0">查看题型</el-button>
                     </el-dropdown-item>
                     <el-dropdown-item>
-                      <el-button size="mini" type="danger" @click="deleteKnow(scope.row.knowId)">删除</el-button>
+                      <el-button size="mini" type="danger" @click="deleteKnow(scope.row.knowId)" v-if="this.$store.getters.auths.indexOf('know:delete') >= 0">删除</el-button>
                     </el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
@@ -97,7 +97,7 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="addBankType" size="mini">添加</el-button>
+          <el-button type="primary" @click="addBankType" size="mini" v-if="this.$store.getters.auths.indexOf('know:type:add') >= 0">添加</el-button>
         </el-form-item>
       </el-form>
 
@@ -106,10 +106,10 @@
         <el-table-column prop="type.typeName" show-header="false" align="center"></el-table-column>
         <el-table-column show-header="false" align="center">
           <template slot-scope="scope">
-            <el-button size="mini" type="primary" @click="toQuestion(scope.row.bankId, scope.row.bankType)">
+            <el-button size="mini" type="primary" @click="toQuestion(scope.row.bankId, scope.row.bankType)" v-if="this.$store.getters.auths.indexOf('question:list') >= 0">
               查看题目
             </el-button>
-            <el-button size="mini" type="danger" @click="deleteBankType(scope.row.id)">删除</el-button>
+            <el-button size="mini" type="danger" @click="deleteBankType(scope.row.id)" v-if="this.$store.getters.auths.indexOf('know:type:delete') >= 0">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

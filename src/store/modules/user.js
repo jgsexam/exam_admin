@@ -4,9 +4,10 @@ import { getToken, setToken, removeToken } from '@/utils/auth'
 const user = {
   state: {
     token: getToken(),
-    name: '',
-    avatar: '',
-    roles: []
+    name: '', // 名称
+    avatar: '', // 头像
+    roles: [], // 角色列表
+    auths: [], // 权限列表
   },
 
   mutations: {
@@ -21,6 +22,9 @@ const user = {
     },
     SET_ROLES: (state, roles) => {
       state.roles = roles
+    },
+    SET_AUTHS: (state, auths) => {
+      state.auths = auths
     }
   },
 
@@ -49,6 +53,7 @@ const user = {
           } else {
             reject('您没有任何权限进行登录!')
           }
+          commit('SET_AUTHS', data.authList)
           commit('SET_NAME', data.teacherName)
           commit('SET_AVATAR', data.teacherImg)
           resolve(response)

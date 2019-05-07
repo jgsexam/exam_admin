@@ -10,7 +10,12 @@
         </el-form-item>
       </el-form>
       <hr>
-      <el-button type="primary" size="mini" @click="toAdd">添加</el-button>
+      <el-button
+        type="primary"
+        size="mini"
+        @click="toAdd"
+        v-if="this.$store.getters.auths.indexOf('type:add') >= 0"
+      >添加</el-button>
     </div>
     <el-table
       :data="page.list"
@@ -32,10 +37,20 @@
             </el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>
-                <el-button size="mini" type="success" @click="toUpdate(scope.row.typeId)">编辑</el-button>
+                <el-button
+                  size="mini"
+                  type="success"
+                  @click="toUpdate(scope.row.typeId)"
+                  v-if="this.$store.getters.auths.indexOf('type:update') >= 0"
+                >编辑</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
-                <el-button size="mini" type="danger" @click="toDelete(scope.row.typeId)">删除</el-button>
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="toDelete(scope.row.typeId)"
+                  v-if="this.$store.getters.auths.indexOf('type:delete') >= 0"
+                >删除</el-button>
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -73,7 +88,7 @@
 import typeApi from "@/api/type";
 
 export default {
-  data() {
+  data () {
     return {
       dialogFormVisible: false, // 弹出层隐藏
       page: {
@@ -98,21 +113,21 @@ export default {
     };
   },
   methods: {
-    handleSizeChange(val) {
+    handleSizeChange (val) {
       this.page.currentCount = val;
       this.list();
     },
-    handleCurrentChange(val) {
+    handleCurrentChange (val) {
       this.page.currentPage = val;
       this.list();
     },
-    sortHandler(column) {
+    sortHandler (column) {
       // 排序查询
       this.page.sortName = column.prop;
       this.page.sortOrder = column.order;
       this.list();
     },
-    save() {
+    save () {
       typeApi.save(this.type).then(res => {
         if (res.code === 200) {
           // 操作
@@ -128,7 +143,7 @@ export default {
         }
       });
     },
-    list() {
+    list () {
       // 分页查询
       this.$store.commit("SET_LOADING", true);
       typeApi.list(this.page).then(res => {
@@ -137,7 +152,7 @@ export default {
         }
       });
     },
-    toUpdate(id) {
+    toUpdate (id) {
       // 打开弹窗，进行修改
       // 根据id查询
       typeApi.get(id).then(res => {
@@ -148,7 +163,7 @@ export default {
         }
       });
     },
-    toAdd() {
+    toAdd () {
       this.type = {
         typeId: "",
         typeName: ""
@@ -156,7 +171,7 @@ export default {
       this.dialogTitle = "新增题型";
       this.dialogFormVisible = true;
     },
-    toDelete(id) {
+    toDelete (id) {
       this.$confirm("确定删除这条记录?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -178,11 +193,11 @@ export default {
         });
       });
     },
-    search() {
+    search () {
       this.list();
     }
   },
-  created() {
+  created () {
     this.list();
   }
 };
