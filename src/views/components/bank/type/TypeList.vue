@@ -14,7 +14,7 @@
         type="primary"
         size="mini"
         @click="toAdd"
-        v-if="this.$store.getters.auths.indexOf('type:add') >= 0"
+        v-if="permission.indexOf('type:add') >= 0"
       >添加</el-button>
     </div>
     <el-table
@@ -41,7 +41,7 @@
                   size="mini"
                   type="success"
                   @click="toUpdate(scope.row.typeId)"
-                  v-if="this.$store.getters.auths.indexOf('type:update') >= 0"
+                  v-if="permission.indexOf('type:update') >= 0"
                 >编辑</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
@@ -49,7 +49,7 @@
                   size="mini"
                   type="danger"
                   @click="toDelete(scope.row.typeId)"
-                  v-if="this.$store.getters.auths.indexOf('type:delete') >= 0"
+                  v-if="permission.indexOf('type:delete') >= 0"
                 >删除</el-button>
               </el-dropdown-item>
             </el-dropdown-menu>
@@ -90,6 +90,7 @@ import typeApi from "@/api/type";
 export default {
   data () {
     return {
+      permission: this.$store.getters.auths,
       dialogFormVisible: false, // 弹出层隐藏
       page: {
         currentPage: 1,

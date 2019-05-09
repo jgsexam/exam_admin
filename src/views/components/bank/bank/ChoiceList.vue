@@ -17,7 +17,7 @@
         </el-form-item>
       </el-form>
       <hr>
-      <el-button type="primary" size="mini" @click="toAdd" v-if="this.$store.getters.auths.indexOf('question:add') >= 0">添加</el-button>
+      <el-button type="primary" size="mini" @click="toAdd" v-if="permission.indexOf('question:add') >= 0">添加</el-button>
     </div>
     <!-- 搜索框结束 -->
 
@@ -34,13 +34,13 @@
               </el-button>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item>
-                  <el-button size="mini" type="success" @click="toUpdate(question.choiceId)" v-if="this.$store.getters.auths.indexOf('question:update') >= 0">编辑</el-button>
+                  <el-button size="mini" type="success" @click="toUpdate(question.choiceId)" v-if="permission.indexOf('question:update') >= 0">编辑</el-button>
                 </el-dropdown-item>
                 <el-dropdown-item>
                   <el-button size="mini" type="primary" @click="lookResolve(question)">查看解析</el-button>
                 </el-dropdown-item>
                 <el-dropdown-item>
-                  <el-button size="mini" type="danger" @click="deleteById(question.choiceId)" v-if="this.$store.getters.auths.indexOf('question:delete') >= 0">删除</el-button>
+                  <el-button size="mini" type="danger" @click="deleteById(question.choiceId)" v-if="permission.indexOf('question:delete') >= 0">删除</el-button>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -136,6 +136,7 @@ import choiceApi from '@/api/choice'
 export default {
   data() {
     return {
+      permission: this.$store.getters.auths,
       dialogTitle: "添加题目", // 添加修改弹窗标题
       dialogFormVisible: false, // 控制弹窗显示隐藏
       choice: { // 选择题对象

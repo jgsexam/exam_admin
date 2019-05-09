@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="table-header" v-if="this.$store.getters.auths.indexOf('ar:role:add') >= 0">
+    <div class="table-header" v-if="permission.indexOf('ar:role:add') >= 0">
       <el-button type="primary" size="mini" @click="toAdd">添加</el-button>
     </div>
     <el-tree
@@ -78,6 +78,7 @@ import roleAuthApi from "@/api/roleAuth"
 export default {
   data () {
     return {
+      permission: this.$store.getters.auths,
       roleTree: [], // 角色树形列表
       defaultProps: {
         children: 'list',

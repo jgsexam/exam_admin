@@ -23,7 +23,7 @@
         </el-form-item>
       </el-form>
       <hr>
-      <el-button type="primary" size="mini" @click="toAdd" v-if="this.$store.getters.auths.indexOf('bank:add') >= 0">添加</el-button>
+      <el-button type="primary" size="mini" @click="toAdd" v-if="permission.indexOf('bank:add') >= 0">添加</el-button>
     </div>
     <!-- 搜索框结束 -->
 
@@ -43,13 +43,13 @@
             </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>
-                <el-button type="success" size="mini" @click="toUpdate(bank.bankId)" v-if="this.$store.getters.auths.indexOf('bank:update') >= 0">编辑</el-button>
+                <el-button type="success" size="mini" @click="toUpdate(bank.bankId)" v-if="permission.indexOf('bank:update') >= 0">编辑</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
-                <el-button type="primary" size="mini" @click="toKnowledge(bank.bankId)" v-if="this.$store.getters.auths.indexOf('know:list') >= 0">知识点</el-button>
+                <el-button type="primary" size="mini" @click="toKnowledge(bank.bankId)" v-if="permission.indexOf('know:list') >= 0">知识点</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
-                <el-button type="danger" size="mini" @click="toDelete(bank.bankId)" v-if="this.$store.getters.auths.indexOf('bank:delete') >= 0">删除</el-button>
+                <el-button type="danger" size="mini" @click="toDelete(bank.bankId)" v-if="permission.indexOf('bank:delete') >= 0">删除</el-button>
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -110,6 +110,7 @@
   export default {
     data() {
       return {
+        permission: this.$store.getters.auths,
         imageUrl: "",
         dialogFormVisible: false, // 弹出层隐藏
         page: {

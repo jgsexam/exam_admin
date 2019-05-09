@@ -10,7 +10,7 @@
         </el-form-item>
       </el-form>
       <hr>
-      <el-button type="primary" size="mini" @click="toAdd" v-if="this.$store.getters.auths.indexOf('sys:title:add') >= 0">添加</el-button>
+      <el-button type="primary" size="mini" @click="toAdd" v-if="permission.indexOf('sys:title:add') >= 0">添加</el-button>
     </div>
     <el-table
       :data="page.list"
@@ -32,10 +32,10 @@
             </el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>
-                <el-button size="mini" type="success" @click="toUpdate(scope.row.dictId)" v-if="this.$store.getters.auths.indexOf('sys:title:update') >= 0">编辑</el-button>
+                <el-button size="mini" type="success" @click="toUpdate(scope.row.dictId)" v-if="permission.indexOf('sys:title:update') >= 0">编辑</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
-                <el-button size="mini" type="danger" @click="toDelete(scope.row.dictId)" v-if="this.$store.getters.auths.indexOf('sys:title:delete') >= 0">删除</el-button>
+                <el-button size="mini" type="danger" @click="toDelete(scope.row.dictId)" v-if="permission.indexOf('sys:title:delete') >= 0">删除</el-button>
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -76,6 +76,7 @@ import dictApi from '@/api/dict'
 export default {
   data() {
     return {
+      permission: this.$store.getters.auths,
       dialogFormVisible: false, // 弹出层隐藏
       page: {
         currentPage: 1,

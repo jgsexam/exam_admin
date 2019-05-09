@@ -205,6 +205,7 @@ import paperConfigQuestionApi from '@/api/paperConfigQuestion'
 export default {
   data () {
     return {
+      permission: this.$store.getters.auths,
       paperId: this.$route.params.paperId, // 试卷id
       paper: { // 试卷数据
         bank: {

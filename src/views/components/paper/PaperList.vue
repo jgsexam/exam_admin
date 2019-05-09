@@ -100,7 +100,7 @@
       <!-- 搜索部分结束 -->
 
       <hr>
-      <el-button type="primary" size="mini" @click="toAdd" v-if="this.$store.getters.auths.indexOf('paper:add') >= 0">添加</el-button>
+      <el-button type="primary" size="mini" @click="toAdd" v-if="permission.indexOf('paper:add') >= 0">添加</el-button>
     </div>
 
     <!-- 列表开始 -->
@@ -134,7 +134,7 @@
       </el-table-column>
       <el-table-column prop="college.dictName" sortable="custom" label="学院" width="160px"></el-table-column>
       <el-table-column prop="major.dictName" sortable="custom" label="专业"></el-table-column>
-      <el-table-column prop="bank.bankName" sortable="custom" label="题库" width="120px"></el-table-column>
+      <el-table-column prop="bank.bankName" label="题库" width="120px"></el-table-column>
       <el-table-column prop="paperQuestionNum" sortable="custom" label="题量"></el-table-column>
       <el-table-column sortable="custom" label="试卷类型">
         <template slot-scope="scope">
@@ -167,28 +167,28 @@
             </el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>
-                <el-button size="mini" type="success" @click="toUpdate(scope.row.paperId)" v-if="this.$store.getters.auths.indexOf('paper:update') >= 0">编辑</el-button>
+                <el-button size="mini" type="success" @click="toUpdate(scope.row.paperId)" v-if="permission.indexOf('paper:update') >= 0">编辑</el-button>
               </el-dropdown-item>
               <el-dropdown-item v-if="scope.row.paperType == 0">
-                <el-button size="mini" type="success" @click="toGa(scope.row)" v-if="this.$store.getters.auths.indexOf('paper:submit') >= 0">智能组卷</el-button>
+                <el-button size="mini" type="success" @click="toGa(scope.row)" v-if="permission.indexOf('paper:submit') >= 0">智能组卷</el-button>
               </el-dropdown-item>
               <el-dropdown-item v-if="scope.row.paperType != 2 && scope.row.paperSubmit == 0">
-                <el-button size="mini" type="warning" @click="toHand(scope.row)" v-if="this.$store.getters.auths.indexOf('paper:submit') >= 0">手动组卷</el-button>
+                <el-button size="mini" type="warning" @click="toHand(scope.row)" v-if="permission.indexOf('paper:submit') >= 0">手动组卷</el-button>
               </el-dropdown-item>
               <el-dropdown-item v-if="scope.row.paperType == 1 && scope.row.paperSubmit == 0">
-                <el-button size="mini" type="primary" @click="toUpdateQuestion(scope.row)" v-if="this.$store.getters.auths.indexOf('paper:submit') >= 0">修改题目</el-button>
+                <el-button size="mini" type="primary" @click="toUpdateQuestion(scope.row)" v-if="permission.indexOf('paper:submit') >= 0">修改题目</el-button>
               </el-dropdown-item>
               <el-dropdown-item v-if="scope.row.paperSubmit == 1">
-                <el-button size="mini" type="primary" @click="toRead(scope.row)" v-if="this.$store.getters.auths.indexOf('paper:submit') >= 0">预览试卷</el-button>
+                <el-button size="mini" type="primary" @click="toRead(scope.row)" v-if="permission.indexOf('paper:submit') >= 0">预览试卷</el-button>
               </el-dropdown-item>
               <el-dropdown-item v-if="scope.row.paperType == 1 && scope.row.paperSubmit == 0">
-                <el-button size="mini" type="primary" @click="submitPaper(scope.row)" v-if="this.$store.getters.auths.indexOf('paper:submit') >= 0">提交组卷</el-button>
+                <el-button size="mini" type="primary" @click="submitPaper(scope.row)" v-if="permission.indexOf('paper:submit') >= 0">提交组卷</el-button>
               </el-dropdown-item>
               <el-dropdown-item v-if="scope.row.paperSubmit == 1">
                 <el-button size="mini" type="primary" @click="downloadPaper(scope.row)">下载试卷</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
-                <el-button size="mini" type="danger" @click="deleteById(scope.row.paperId)" v-if="this.$store.getters.auths.indexOf('paper:delete') >= 0">删除</el-button>
+                <el-button size="mini" type="danger" @click="deleteById(scope.row.paperId)" v-if="permission.indexOf('paper:delete') >= 0">删除</el-button>
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -494,6 +494,7 @@ import questionApi from "@/api/question"
 export default {
   data () {
     return {
+      permission: this.$store.getters.auths,
       timeInterval: null, // 学年度时间区间数组
       dialogFormVisible: false, // 弹出层表单隐藏
       dialogHand: false, // 手动组卷弹窗
