@@ -15,9 +15,9 @@ import router from './router'
 import '@/icons' // icon
 import '@/permission' // permission control
 import '../mock' // simulation data
-import echarts from 'echarts'
+import VCharts from 'v-charts'
 
-Vue.prototype.$echarts = echarts 
+Vue.use(VCharts)
 
 Vue.use(ElementUI, { locale })
 

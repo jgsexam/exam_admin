@@ -128,6 +128,13 @@ export const constantRouterMap = [
         auth: 'paper:list'
       },
       {
+        path: 'paperLog',
+        name: 'paperLog',
+        component: () => import('@/views/components/paper/PaperList'),
+        meta: { title: '组卷日志', icon: 'table' },
+        auth: 'paper:log:list'
+      },
+      {
         path: 'question/:paperId',
         name: 'paperQuestion',
         component: () => import('@/views/components/paper/QuestionList'),

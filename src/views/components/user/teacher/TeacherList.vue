@@ -66,7 +66,12 @@
       <!-- 搜索部分结束 -->
 
       <hr>
-      <el-button type="primary" size="mini" @click="toAdd" v-if="permission.indexOf('user:teacher:add') >= 0">添加</el-button>
+      <el-button
+        type="primary"
+        size="mini"
+        @click="toAdd"
+        v-if="permission.indexOf('user:teacher:add') >= 0"
+      >添加</el-button>
     </div>
 
     <!-- 列表开始 -->
@@ -102,16 +107,39 @@
             </el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>
-                <el-button size="mini" type="success" @click="toUpdate(scope.row.teacherId)" v-if="permission.indexOf('user:teacher:update') >= 0">编辑</el-button>
+                <el-button
+                  size="mini"
+                  type="success"
+                  @click="toUpdate(scope.row.teacherId)"
+                  v-if="permission.indexOf('user:teacher:update') >= 0"
+                >编辑</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button size="mini" type="primary" @click="getDetails(scope.row.teacherId)">查看详情</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
-                <el-button size="mini" type="primary" @click="checkRole(scope.row.teacherId)" v-if="permission.indexOf('user:teacher:role') >= 0">修改角色</el-button>
+                <el-button
+                  size="mini"
+                  type="primary"
+                  @click="checkRole(scope.row.teacherId)"
+                  v-if="permission.indexOf('user:teacher:role') >= 0"
+                >修改角色</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
-                <el-button size="mini" type="danger" @click="toDelete(scope.row.teacherId)" v-if="permission.indexOf('user:teacher:delete') >= 0">删除</el-button>
+                <el-button
+                  size="mini"
+                  type="primary"
+                  @click="checkDataAuth(scope.row.teacherId)"
+                  v-if="permission.indexOf('ar:role:auth') >= 0"
+                >数据级权限</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="toDelete(scope.row.teacherId)"
+                  v-if="permission.indexOf('user:teacher:delete') >= 0"
+                >删除</el-button>
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -354,6 +382,30 @@
       <el-button size="mini" @click="dialogRoleTree=false">取消</el-button>
     </el-dialog>
     <!-- 权限操作组件结束 -->
+
+    <!-- 数据级权限操作 -->
+    <el-dialog
+      title="数据权限操作"
+      :visible.sync="dialogData"
+      v-loading="this.$store.getters.loading"
+      width="580px"
+    >
+      <el-form :model="teacher" label-width="80px" size="mini">
+        <el-form-item label="查询权限级别">
+          <el-select v-model="teacher.teacherOrg" filterable placeholder="请选择" clearable>
+            <el-option :key="1" label="查看自己创建的" :value="1"></el-option>
+            <el-option :key="2" label="查看学院的" :value="2"></el-option>
+            <el-option :key="3" label="查看全部" :value="3"></el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item class="teacher-submit-part">
+          <el-button type="primary" @click="updateDataAuth">提交</el-button>
+          <el-button @click="dialogFormVisible=false">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+    <!-- 数据级权限操作结束 -->
   </div>
 </template>
 <script>
@@ -364,11 +416,12 @@ import RoleApi from "@/api/role";
 import TeacherRoleApi from "@/api/teacherRole";
 
 export default {
-  data() {
+  data () {
     return {
       permission: this.$store.getters.auths,
       timeInterval: null, // 入职时间区间(数组)
       dialogFormVisible: false, // 弹出层表单隐藏
+      dialogData: false, // 数据级权限修改弹窗
       dialogRoleTree: false, // 弹出层树形隐藏
       dialogResumeVisible: false, // 弹出简历页隐藏
       page: {
@@ -451,22 +504,22 @@ export default {
     };
   },
   methods: {
-    handleSizeChange(val) {
+    handleSizeChange (val) {
       this.page.currentCount = val;
       this.list();
     },
-    handleCurrentChange(val) {
+    handleCurrentChange (val) {
       this.page.currentPage = val;
       this.list();
     },
-    sortHandler(column) {
+    sortHandler (column) {
       // 排序查询
       this.page.sortName = column.prop;
       this.page.sortOrder = column.order;
       this.list();
     },
 
-    save() {
+    save () {
       // 保存或修改;
 
       if (this.teacher.teacherId != "") {
@@ -506,7 +559,18 @@ export default {
         });
       }
     },
-    list() {
+    updateDataAuth () {
+      // 更新数据级权限
+      this.$store.commit("SET_LOADING", true)
+      teacherApi.update(this.teacher).then(res => {
+        if (res.code == 200) {
+          this.dialogData = false;
+          this.$message.success(res.msg);
+          this.list();
+        }
+      })
+    },
+    list () {
       // 分页查询
       this.$store.commit("SET_LOADING", true)
       if (this.timeInterval != null) {
@@ -522,7 +586,7 @@ export default {
         }
       });
     },
-    toUpdate(id) {
+    toUpdate (id) {
       // 打开弹窗，进行修改
       // 根据id查询
       teacherApi.get(id).then(res => {
@@ -535,8 +599,17 @@ export default {
         }
       });
     },
-
-    getDetails(id) {
+    checkDataAuth (id) {
+      // 打开弹窗，进行修改
+      // 根据id查询
+      teacherApi.get(id).then(res => {
+        if (res.code == 200) {
+          this.teacher = res.data;
+          this.dialogData = true;
+        }
+      });
+    },
+    getDetails (id) {
       // 加载查看详情表单
       teacherApi.get(id).then(res => {
         if (res.code == 200) {
@@ -545,7 +618,7 @@ export default {
         }
       });
     },
-    toAdd() {
+    toAdd () {
       this.college = {
         collegeId: "",
         collegeName: ""
@@ -567,7 +640,7 @@ export default {
       this.isdisabledFn = false;
       // this.imageUrl = "";
     },
-    toDelete(id) {
+    toDelete (id) {
       this.$confirm("确定删除这条记录?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -589,32 +662,32 @@ export default {
         });
       });
     },
-    getCollege() {
+    getCollege () {
       // 查询学院
       dictApi.all({ dictType: "college" }).then(res => {
         this.collegeList = res.data;
       });
     },
-    getJob() {
+    getJob () {
       // 查询职务
       dictApi.all({ dictType: "job" }).then(res => {
         this.jobList = res.data;
       });
     },
-    getTitle() {
+    getTitle () {
       // 查询职称
       dictApi.all({ dictType: "title" }).then(res => {
         this.titleList = res.data;
       });
     },
-    handleAvatarSuccess(res, file) {
+    handleAvatarSuccess (res, file) {
       // this.teacher.teacherImg = URL.createObjectURL(file.raw);
       this.imageUrl = res.data.fileUrl;
       this.teacher.teacherImg = this.imageUrl;
       this.$message.success(res.msg);
       this.imgLoading = false;
     },
-    beforeAvatarUpload(file) {
+    beforeAvatarUpload (file) {
       const isJPG = file.type === "image/jpeg" || file.type === "image/png";
       const isLt2M = file.size / 1024 / 1024 < 5;
       if (!isJPG) {
@@ -628,10 +701,10 @@ export default {
       this.imgLoading = true;
       return isJPG && isLt2M;
     },
-    search() {
+    search () {
       this.list();
     },
-    treeList() {
+    treeList () {
       // 树形加载
       RoleApi.treeList().then(res => {
         if (res.code == 200) {
@@ -639,7 +712,7 @@ export default {
         }
       });
     },
-    checkRole(id) {
+    checkRole (id) {
       this.checkTeacher = id;
       this.teacherRoles = []
       TeacherRoleApi.roleList(id).then(res => {
@@ -657,14 +730,15 @@ export default {
         }
       });
     },
-    updateRole() {
+    updateRole () {
       TeacherRoleApi.update(this.teacherRoles).then(res => {
         if (res.code == 200) {
+          this.dialogRoleTree = false;
           this.$message.success(res.msg);
         }
       });
     },
-    handleCheckChange(data, checked, indeterminate) {
+    handleCheckChange (data, checked, indeterminate) {
       // 先找数组中是否已经有了被勾选的元素
       let index = this.teacherRoles.findIndex(e => e.trRole == data.roleId);
       // 如果这个元素被勾选了，数组中也没有，那就添加
@@ -680,7 +754,7 @@ export default {
       }
     }
   },
-  created() {
+  created () {
     this.list();
     this.getCollege();
     this.getTitle();

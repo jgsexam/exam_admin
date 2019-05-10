@@ -52,5 +52,11 @@ export default {
       method: 'post',
       data: gaPaper
     })
+  },
+  typeNum(paperId) {
+    return request({
+      url: `/${group_name}/typeNum/${paperId}`,
+      method: 'get'
+    })
   }
 }

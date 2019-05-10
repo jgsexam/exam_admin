@@ -8,9 +8,9 @@ export function login(teacher) {
   })
 }
 
-export function getInfo(token) {
+export function getInfo() {
   return request({
-    url: `/teacher/info/${token}`,
+    url: `/teacher/info`,
     method: 'get'
   })
 }

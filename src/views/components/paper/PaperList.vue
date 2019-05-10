@@ -100,7 +100,12 @@
       <!-- 搜索部分结束 -->
 
       <hr>
-      <el-button type="primary" size="mini" @click="toAdd" v-if="permission.indexOf('paper:add') >= 0">添加</el-button>
+      <el-button
+        type="primary"
+        size="mini"
+        @click="toAdd"
+        v-if="permission.indexOf('paper:add') >= 0"
+      >添加</el-button>
     </div>
 
     <!-- 列表开始 -->
@@ -156,6 +161,7 @@
       </el-table-column>
       <el-table-column prop="paperDifficulty" sortable="custom" label="难度系数"></el-table-column>
       <el-table-column prop="paperScore" sortable="custom" label="总分"></el-table-column>
+      <el-table-column prop="teacher.teacherName" label="创建人"></el-table-column>
       <el-table-column prop="paperCreateTime" sortable="custom" label="创建时间"></el-table-column>
       <el-table-column prop="paperUpdateTime" sortable="custom" label="修改时间"></el-table-column>
       <el-table-column fixed="right" label="操作" width="100px">
@@ -167,28 +173,68 @@
             </el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>
-                <el-button size="mini" type="success" @click="toUpdate(scope.row.paperId)" v-if="permission.indexOf('paper:update') >= 0">编辑</el-button>
+                <el-button
+                  size="mini"
+                  type="success"
+                  @click="toUpdate(scope.row.paperId)"
+                  v-if="permission.indexOf('paper:update') >= 0"
+                >编辑</el-button>
               </el-dropdown-item>
               <el-dropdown-item v-if="scope.row.paperType == 0">
-                <el-button size="mini" type="success" @click="toGa(scope.row)" v-if="permission.indexOf('paper:submit') >= 0">智能组卷</el-button>
+                <el-button
+                  size="mini"
+                  type="success"
+                  @click="toGa(scope.row)"
+                  v-if="permission.indexOf('paper:submit') >= 0"
+                >智能组卷</el-button>
               </el-dropdown-item>
               <el-dropdown-item v-if="scope.row.paperType != 2 && scope.row.paperSubmit == 0">
-                <el-button size="mini" type="warning" @click="toHand(scope.row)" v-if="permission.indexOf('paper:submit') >= 0">手动组卷</el-button>
+                <el-button
+                  size="mini"
+                  type="warning"
+                  @click="toHand(scope.row)"
+                  v-if="permission.indexOf('paper:submit') >= 0"
+                >手动组卷</el-button>
               </el-dropdown-item>
               <el-dropdown-item v-if="scope.row.paperType == 1 && scope.row.paperSubmit == 0">
-                <el-button size="mini" type="primary" @click="toUpdateQuestion(scope.row)" v-if="permission.indexOf('paper:submit') >= 0">修改题目</el-button>
+                <el-button
+                  size="mini"
+                  type="primary"
+                  @click="toUpdateQuestion(scope.row)"
+                  v-if="permission.indexOf('paper:submit') >= 0"
+                >修改题目</el-button>
               </el-dropdown-item>
               <el-dropdown-item v-if="scope.row.paperSubmit == 1">
-                <el-button size="mini" type="primary" @click="toRead(scope.row)" v-if="permission.indexOf('paper:submit') >= 0">预览试卷</el-button>
+                <el-button
+                  size="mini"
+                  type="primary"
+                  @click="toRead(scope.row)"
+                  v-if="permission.indexOf('paper:submit') >= 0"
+                >预览试卷</el-button>
               </el-dropdown-item>
               <el-dropdown-item v-if="scope.row.paperType == 1 && scope.row.paperSubmit == 0">
-                <el-button size="mini" type="primary" @click="submitPaper(scope.row)" v-if="permission.indexOf('paper:submit') >= 0">提交组卷</el-button>
+                <el-button
+                  size="mini"
+                  type="primary"
+                  @click="submitPaper(scope.row)"
+                  v-if="permission.indexOf('paper:submit') >= 0"
+                >提交组卷</el-button>
               </el-dropdown-item>
               <el-dropdown-item v-if="scope.row.paperSubmit == 1">
                 <el-button size="mini" type="primary" @click="downloadPaper(scope.row)">下载试卷</el-button>
               </el-dropdown-item>
+              <el-dropdown-item
+                v-if="scope.row.paperType != 0 && permission.indexOf('paper:submit') >= 0"
+              >
+                <el-button size="mini" type="primary" @click="getTypeNum(scope.row)">题型比例</el-button>
+              </el-dropdown-item>
               <el-dropdown-item>
-                <el-button size="mini" type="danger" @click="deleteById(scope.row.paperId)" v-if="permission.indexOf('paper:delete') >= 0">删除</el-button>
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="deleteById(scope.row.paperId)"
+                  v-if="permission.indexOf('paper:delete') >= 0"
+                >删除</el-button>
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -316,7 +362,7 @@
         <!-- 搜索部分开始 -->
         <el-form :inline="true" :model="page" class="demo-form-inline" size="mini">
           <el-form-item label="题干">
-            <el-input v-model="page.params.title" placeholder="题干" clearable></el-input>
+            <el-input v-model="testPage.params.title" placeholder="题干" clearable></el-input>
           </el-form-item>
           <el-form-item label="知识点">
             <el-select
@@ -345,7 +391,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="难度系数">
-            <el-select clearable v-model="page.params.difficulty" filterable placeholder="请选择">
+            <el-select clearable v-model="testPage.params.difficulty" filterable placeholder="请选择">
               <el-option v-for="diff in 5" :key="diff" :label="diff" :value="diff"></el-option>
             </el-select>
           </el-form-item>
@@ -480,6 +526,12 @@
       </el-form>
     </el-dialog>
     <!-- 智能组卷弹窗结束 -->
+
+    <!-- 题型比例弹窗 -->
+    <el-dialog title="题型比例" :visible.sync="dialogTypeNum">
+      <ve-ring :data="typeNum" :settings="typeNumSetting"></ve-ring>
+    </el-dialog>
+    <!-- 题型比例弹窗结束 -->
   </div>
 </template>
 <script>
@@ -498,6 +550,7 @@ export default {
       timeInterval: null, // 学年度时间区间数组
       dialogFormVisible: false, // 弹出层表单隐藏
       dialogHand: false, // 手动组卷弹窗
+      dialogTypeNum: false, // 题型比例弹窗
       dialogGa: false, // 智能组卷弹窗
       dialogTitle: "创建试卷", // 弹出层标题
       page: { // 试卷分页对象
@@ -579,6 +632,17 @@ export default {
             ]
           }
         ]
+      },
+      typeNum: { // 试卷题型数
+        columns: ['typeName', 'configQuestionNum'],
+        rows: [
+        ]
+      },
+      typeNumSetting: {
+        labelMap: {
+          'typeName': '题型',
+          'configQuestionNum': '题量'
+        },
       },
     };
   },
@@ -866,6 +930,13 @@ export default {
           }
         })
       })
+    },
+    getTypeNum (paper) {
+      // 查看题型比例
+      paperApi.typeNum(paper.paperId).then(res => {
+        this.typeNum.rows = res.data
+        this.dialogTypeNum = true
+      })
     }
   },
   created () {
@@ -921,5 +992,4 @@ export default {
   text-align: right;
   position: relative;
 }
-
 </style>

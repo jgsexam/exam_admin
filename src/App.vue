@@ -11,14 +11,18 @@ export default {
 </script>
 
 <style>
-  * {
-    font-size: 12px;
-  }
-  .el-dialog__title {
-    font-size: 16px;
-  }
+p,pre,.item {
+  font-size: 12px;
+}
+.el-dialog__title {
+  font-size: 16px;
+}
 
-  hr {
-    color: #fafafa;
-  }
+hr {
+  color: #fafafa;
+}
+
+.el-submenu__title i {
+  color: white !important;
+}
 </style>
