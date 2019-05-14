@@ -72,6 +72,18 @@
         @click="toAdd"
         v-if="permission.indexOf('user:teacher:add') >= 0"
       >添加</el-button>
+      <el-button
+        type="warning"
+        size="mini"
+        @click="resetPwd"
+        v-if="permission.indexOf('user:teacher:update') >= 0"
+      >重置密码</el-button>
+      <el-button
+        type="danger"
+        size="mini"
+        @click="resetAll"
+        v-if="permission.indexOf('user:teacher:update') >= 0"
+      >全部密码重置</el-button>
     </div>
 
     <!-- 列表开始 -->
@@ -83,8 +95,9 @@
       @sort-change="sortHandler"
       size="mini"
       v-loading="this.$store.getters.loading"
+      @selection-change="changeSelect"
     >
-      <el-table-column type="index" width="50"></el-table-column>
+      <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column prop="teacherNumber" sortable="custom" label="工号"></el-table-column>
       <el-table-column prop="teacherName" sortable="custom" label="姓名"></el-table-column>
       <el-table-column sortable="custom" label="性别">
@@ -181,13 +194,13 @@
           <el-input :disabled="isdisabledFn" v-model="teacher.teacherNumber" clearable></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="teacherPassword">
-          <el-input v-model="teacher.teacherPassword" clearable></el-input>
+          <el-input v-model="teacher.teacherPassword" clearable type="password"></el-input>
         </el-form-item>
         <el-form-item label="姓名" prop="teacherName">
-          <el-input :disabled="isdisabledFn" v-model="teacher.teacherName" clearable></el-input>
+          <el-input v-model="teacher.teacherName" clearable></el-input>
         </el-form-item>
         <el-form-item label="身份证号" prop="teacherCard">
-          <el-input :disabled="isdisabledFn" v-model="teacher.teacherCard" clearable></el-input>
+          <el-input v-model="teacher.teacherCard" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="年龄" prop="teacherAge">
@@ -293,7 +306,7 @@
           <el-input :disabled="isdisabledFn" v-model="teacher.teacherNumber"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="teacherPassword">
-          <el-input v-model="teacher.teacherPassword"></el-input>
+          <el-input v-model="teacher.teacherPassword" type="password"></el-input>
         </el-form-item>
         <el-form-item label="姓名" prop="teacherName">
           <el-input :disabled="isdisabledFn" v-model="teacher.teacherName"></el-input>
@@ -373,9 +386,8 @@
         show-checkbox
         node-key="roleId"
         default-expand-all
-        v-loading="this.$store.getters.loading"
-        :expand-on-click-node="false"
         :default-checked-keys="checkIds"
+        :default-expanded-keys="checkIds"
         @check-change="handleCheckChange"
       ></el-tree>
       <el-button size="mini" type="primary" @click="updateRole">提交</el-button>
@@ -500,7 +512,8 @@ export default {
       },
       checkIds: [], // 角色树默认选中
       checkTeacher: "", // 当前点击的教师id
-      teacherRoles: [] // 教师-角色数组，用于添加
+      teacherRoles: [], // 教师-角色数组，用于添加
+      selectIds: [], // 被选中的教师id
     };
   },
   methods: {
@@ -644,7 +657,7 @@ export default {
       this.$confirm("确定删除这条记录?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        teacher: "error"
+        type: "error"
       }).then(() => {
         teacherApi.delete(id).then(res => {
           if (res.code == 200) {
@@ -713,22 +726,21 @@ export default {
       });
     },
     checkRole (id) {
-      this.checkTeacher = id;
+      this.checkTeacher = id
       this.teacherRoles = []
       TeacherRoleApi.roleList(id).then(res => {
         if (res.code == 200) {
-          this.checkIds = res.data;
-          this.dialogRoleTree = true;
+          this.checkIds = res.data
           // 遍历数组进行拷贝
           this.checkIds.forEach((value, key) => {
-            console.log(value);
             this.teacherRoles.push({
               trTeacher: this.checkTeacher,
               trRole: value
-            });
-          });
+            })
+          })
+          this.dialogRoleTree = true;
         }
-      });
+      })
     },
     updateRole () {
       TeacherRoleApi.update(this.teacherRoles).then(res => {
@@ -752,6 +764,39 @@ export default {
       if (!checked && index !== -1) {
         this.teacherRoles.splice(index, 1);
       }
+    },
+    changeSelect (teacherList) {
+      // 多选框选择状态改变
+      let ids = teacherList.map(x => { return x.teacherId })
+      this.selectIds = ids
+    },
+    resetPwd () {
+      this.$confirm("密码将会重置为身份证后6位，是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {
+        teacherApi.resetPwd(this.selectIds).then(res => {
+          if (res.code == 200) {
+            this.$message.success(res.msg)
+          }
+          this.list();
+        });
+      });
+    },
+    resetAll () {
+      this.$confirm("密码将会重置为身份证后6位，是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "danger"
+      }).then(() => {
+        teacherApi.resetAll().then(res => {
+          if (res.code == 200) {
+            this.$message.success(res.msg)
+          }
+          this.list();
+        });
+      });
     }
   },
   created () {
@@ -773,19 +818,16 @@ export default {
   margin-top: 10px;
 }
 
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-
 .avatar-uploader .el-upload:hover {
   border-color: #409eff;
 }
 
 .avatar-uploader-icon {
+  border: 1px dashed #dcdfe6;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
   font-size: 28px;
   color: #8c939d;
   width: 100px;

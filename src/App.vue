@@ -25,4 +25,14 @@ hr {
 .el-submenu__title i {
   color: white !important;
 }
+
+.iconfont {
+  color: white !important;
+  font-size: 20px !important;
+  margin-right: 5px !important;
+}
+
+* {
+  /* border: 1px solid red; */
+}
 </style>

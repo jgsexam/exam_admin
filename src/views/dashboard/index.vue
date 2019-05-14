@@ -1,5 +1,9 @@
 <template>
   <div>
+    <div class="login-user">
+      <el-badge is-dot class="item" type="success"></el-badge>
+      当前登录：{{ name }}
+    </div>
     <el-row :gutter="20">
       <el-col :span="12">
         <div class="grid-content bg-purple">
@@ -85,6 +89,11 @@ export default {
         this.bankQuestion.rows = res.data
       })
     }
+  },
+  computed: {
+    ...mapGetters([
+      'name'
+    ]),
   }
 }
 </script>
@@ -92,5 +101,16 @@ export default {
 <style scoped>
 .el-row {
   margin-bottom: 20px;
+}
+
+.login-user {
+  font-size: 14px;
+  height: 20px;
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.item {
+  margin-top: 10px;
 }
 </style>

@@ -88,13 +88,13 @@ export default {
       // 判断是否拥有某个权限
       if (item.auth == null) {
         const child = item.children
-        if (child.length == 0) {
+        if (child == undefined || child.length == 0) {
           return true
         } else {
           let flag = false
           for (let index = 0; index < child.length; index++) {
             const c = child[index]
-            if (this.$store.getters.auths.indexOf(c.auth) >= 0 || c.hidden) {
+            if (this.$store.getters.auths.indexOf(c.auth) >= 0 || c.hidden || c.auth == null || c.auth == undefined) {
               flag = true
             }
           }

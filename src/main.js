@@ -13,9 +13,14 @@ import store from './store'
 import router from './router'
 
 import '@/icons' // icon
+import '@/assets/iconfont/iconfont.css' // 引入阿里巴巴的fonticon
 import '@/permission' // permission control
 import '../mock' // simulation data
 import VCharts from 'v-charts'
+
+/* 飞来飞去的粒子特效，但是兼容性有问题 */
+/* import VueParticles from 'vue-particles'  
+Vue.use(VueParticles) */
 
 Vue.use(VCharts)
 

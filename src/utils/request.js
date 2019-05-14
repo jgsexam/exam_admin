@@ -60,7 +60,6 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log('err' + error) // for debug
     Message({
       message: '操作失败！',
       type: 'error',

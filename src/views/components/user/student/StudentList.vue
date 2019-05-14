@@ -56,7 +56,24 @@
       <!-- 搜索部分结束 -->
 
       <hr>
-      <el-button type="primary" size="mini" @click="toAdd" v-if="permission.indexOf('user:student:add') >= 0">添加</el-button>
+      <el-button
+        type="primary"
+        size="mini"
+        @click="toAdd"
+        v-if="permission.indexOf('user:student:add') >= 0"
+      >添加</el-button>
+      <el-button
+        type="warning"
+        size="mini"
+        @click="resetPwd"
+        v-if="permission.indexOf('user:student:update') >= 0"
+      >重置密码</el-button>
+      <el-button
+        type="danger"
+        size="mini"
+        @click="resetAll"
+        v-if="permission.indexOf('user:student:update') >= 0"
+      >全部密码重置</el-button>
     </div>
 
     <!-- 列表开始 -->
@@ -68,8 +85,9 @@
       @sort-change="sortHandler"
       size="mini"
       v-loading="this.$store.getters.loading"
+      @selection-change="changeSelect"
     >
-      <el-table-column type="index" width="50"></el-table-column>
+      <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column prop="stuNumber" sortable="custom" label="学号"></el-table-column>
       <el-table-column prop="stuName" sortable="custom" label="姓名"></el-table-column>
       <el-table-column sortable="custom" label="性别">
@@ -91,13 +109,23 @@
             </el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>
-                <el-button size="mini" type="success" @click="toUpdate(scope.row.stuId)" v-if="permission.indexOf('user:student:update') >= 0">编辑</el-button>
+                <el-button
+                  size="mini"
+                  type="success"
+                  @click="toUpdate(scope.row.stuId)"
+                  v-if="permission.indexOf('user:student:update') >= 0"
+                >编辑</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button size="mini" type="primary" @click="getDetails(scope.row.stuId)">查看详情</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
-                <el-button size="mini" type="danger" @click="toDelete(scope.row.stuId)" v-if="permission.indexOf('user:student:delete') >= 0">删除</el-button>
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="toDelete(scope.row.stuId)"
+                  v-if="permission.indexOf('user:student:delete') >= 0"
+                >删除</el-button>
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -125,6 +153,7 @@
       :title="dialogTitle"
       :visible.sync="dialogFormVisible"
       v-loading="this.$store.getters.loading"
+      width="580px"
     >
       <el-form
         :rules="rules"
@@ -144,17 +173,17 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="密码" prop="stuPassword">
-          <el-input v-model="student.stuPassword" clearable></el-input>
+          <el-input v-model="student.stuPassword" clearable type="password"></el-input>
         </el-form-item>
         <el-form-item label="姓名" prop="stuName">
-          <el-input :disabled="isdisabledFn" v-model="student.stuName" clearable></el-input>
+          <el-input v-model="student.stuName" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="年龄" prop="stuAge">
           <el-input v-model="student.stuAge" clearable></el-input>
         </el-form-item>
         <el-form-item label="身份证号" prop="stuCard">
-          <el-input :disabled="isdisabledFn" v-model="student.stuCard" clearable></el-input>
+          <el-input v-model="student.stuCard" clearable></el-input>
         </el-form-item>
 
         <el-form-item label="学院" prop="stuCollege">
@@ -220,6 +249,7 @@
       title="详细信息"
       :visible.sync="dialogResumeVisible"
       v-loading="this.$store.getters.loading"
+      width="580px"
     >
       <el-form
         :rules="rules"
@@ -239,7 +269,7 @@
           <el-input :disabled="isdisabledFn" v-model="student.stuName"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="stuPassword">
-          <el-input v-model="student.stuPassword"></el-input>
+          <el-input v-model="student.stuPassword" type="password"></el-input>
         </el-form-item>
 
         <el-form-item label="性别" prop="stuSex">
@@ -303,7 +333,7 @@ import dictApi from "@/api/dict";
 import { Loading } from "element-ui";
 
 export default {
-  data() {
+  data () {
     return {
       permission: this.$store.getters.auths,
       admissionTime: null, // 入学时间区间(数组)
@@ -371,25 +401,26 @@ export default {
       isdisabledFn: false,
       dialogTitle: "新增学生",
       currentPage4: 4,
-    };
+      selectIds: [], // 被选中的学生id
+    }
   },
   methods: {
-    handleSizeChange(val) {
+    handleSizeChange (val) {
       this.page.currentCount = val;
       this.list();
     },
-    handleCurrentChange(val) {
+    handleCurrentChange (val) {
       this.page.currentPage = val;
       this.list();
     },
-    sortHandler(column) {
+    sortHandler (column) {
       // 排序查询
       this.page.sortName = column.prop;
       this.page.sortOrder = column.order;
       this.list();
     },
 
-    save() {
+    save () {
       // 保存或修改;
 
       if (this.student.stuId != "") {
@@ -429,7 +460,7 @@ export default {
         });
       }
     },
-    list() {
+    list () {
       // 分页查询
       this.$store.commit("SET_LOADING", true)
       if (this.timeInterval != null) {
@@ -445,7 +476,7 @@ export default {
         }
       });
     },
-    toUpdate(id) {
+    toUpdate (id) {
       // 打开弹窗，进行修改
       // 根据id查询
       this.majorList0 = this.majorList
@@ -460,7 +491,7 @@ export default {
       });
     },
 
-    getDetails(id) {
+    getDetails (id) {
       // 加载查看详情表单
       stuApi.get(id).then(res => {
         if (res.code == 200) {
@@ -469,7 +500,7 @@ export default {
         }
       });
     },
-    toAdd() {
+    toAdd () {
       this.college = {
         collegeId: "",
         collegeName: ""
@@ -484,7 +515,7 @@ export default {
       this.isdisabledFn = false;
       // this.imageUrl = "";
     },
-    toDelete(id) {
+    toDelete (id) {
       this.$confirm("确定删除这条记录?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -506,33 +537,33 @@ export default {
         });
       });
     },
-    getCollege() {
+    getCollege () {
       // 查询学院
       dictApi.all({ dictType: "college" }).then(res => {
         this.collegeList = res.data;
       });
     },
-    getMajor() {
+    getMajor () {
       // 查询学院
       dictApi.all({ dictType: "major" }).then(res => {
         this.majorList = res.data;
       });
     },
-    getSon(id) {
+    getSon (id) {
       // 根据学院查询专业
       dictApi.getByFather(id).then(res => {
         this.majorList0 = res.data;
       });
     },
 
-    handleAvatarSuccess(res, file) {
+    handleAvatarSuccess (res, file) {
       // this.student.stuImg = URL.createObjectURL(file.raw);
       this.imageUrl = res.data.fileUrl;
       this.student.stuImg = this.imageUrl;
       this.$message.success(res.msg);
       this.imgLoading = false;
     },
-    beforeAvatarUpload(file) {
+    beforeAvatarUpload (file) {
       const isJPG = file.type === "image/jpeg" || file.type === "image/png";
       const isLt2M = file.size / 1024 / 1024 < 5;
       if (!isJPG) {
@@ -546,11 +577,44 @@ export default {
       this.imgLoading = true;
       return isJPG && isLt2M;
     },
-    search() {
+    search () {
       this.list();
+    },
+    changeSelect (stuList) {
+      // 多选框选择状态改变
+      let ids = stuList.map(x => { return x.stuId })
+      this.selectIds = ids
+    },
+    resetPwd () {
+      this.$confirm("密码将会重置为学号后6位，是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {
+        stuApi.resetPwd(this.selectIds).then(res => {
+          if (res.code == 200) {
+            this.$message.success(res.msg)
+          }
+          this.list();
+        });
+      });
+    },
+    resetAll () {
+      this.$confirm("密码将会重置为学号后6位，是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "danger"
+      }).then(() => {
+        stuApi.resetAll().then(res => {
+          if (res.code == 200) {
+            this.$message.success(res.msg)
+          }
+          this.list();
+        });
+      });
     }
   },
-  created() {
+  created () {
     this.list();
     this.getCollege();
     this.getMajor()
@@ -567,19 +631,16 @@ export default {
   margin-top: 10px;
 }
 
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-
 .avatar-uploader .el-upload:hover {
   border-color: #409eff;
 }
 
 .avatar-uploader-icon {
+  border: 1px dashed #dcdfe6;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
   font-size: 28px;
   color: #8c939d;
   width: 100px;

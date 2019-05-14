@@ -1,48 +1,73 @@
 import request from '@/utils/request'
 var group_name = 'teacher'
 export default {
-  login(teacher) {
+  login (teacher) {
     return request({
       url: `/${group_name}/login`,
       method: 'post',
       data: teacher
     })
   },
-  save(teacher) {
+  save (teacher) {
     return request({
       url: `/${group_name}/add`,
       method: 'post',
       data: teacher
     })
   },
-  update(teacher) {
+  update (teacher) {
     return request({
       url: `/${group_name}/update`,
       method: 'put',
       data: teacher
     })
   },
-  list(page) {
+  rePwd (teacher) {
+    return request({
+      url: `/${group_name}/rePwd`,
+      method: 'put',
+      data: teacher
+    })
+  },
+  resetPwd (ids) {
+    return request({
+      url: `/${group_name}/resetPwd`,
+      method: 'put',
+      data: ids
+    })
+  },
+  resetAll () {
+    return request({
+      url: `/${group_name}/resetAll`,
+      method: 'get'
+    })
+  },
+  list (page) {
     return request({
       url: `/${group_name}/list`,
       method: 'post',
       data: page
     })
   },
-  get(teacherId) {
+  get (teacherId) {
     return request({
       url: `/${group_name}/get/${teacherId}`,
       method: 'get'
     })
   },
-  delete(teacherId) {
+  info () {
+    return request({
+      url: `/${group_name}/info`,
+      method: 'get'
+    })
+  },
+  delete (teacherId) {
     return request({
       url: `/${group_name}/delete/${teacherId}`,
       method: 'delete'
     })
-
   },
-  all(obj) {
+  all (obj) {
     return request({
       url: `/${group_name}/all`,
       method: 'post',

@@ -139,7 +139,7 @@
       </el-table-column>
       <el-table-column prop="college.dictName" sortable="custom" label="学院" width="160px"></el-table-column>
       <el-table-column prop="major.dictName" sortable="custom" label="专业"></el-table-column>
-      <el-table-column prop="bank.bankName" label="题库" width="120px"></el-table-column>
+      <el-table-column prop="bank.bankName" sortable="custom" label="题库" width="120px"></el-table-column>
       <el-table-column prop="paperQuestionNum" sortable="custom" label="题量"></el-table-column>
       <el-table-column sortable="custom" label="试卷类型">
         <template slot-scope="scope">
@@ -161,7 +161,7 @@
       </el-table-column>
       <el-table-column prop="paperDifficulty" sortable="custom" label="难度系数"></el-table-column>
       <el-table-column prop="paperScore" sortable="custom" label="总分"></el-table-column>
-      <el-table-column prop="teacher.teacherName" label="创建人"></el-table-column>
+      <el-table-column prop="teacher.teacherName" sortable="custom" label="创建人"></el-table-column>
       <el-table-column prop="paperCreateTime" sortable="custom" label="创建时间"></el-table-column>
       <el-table-column prop="paperUpdateTime" sortable="custom" label="修改时间"></el-table-column>
       <el-table-column fixed="right" label="操作" width="100px">

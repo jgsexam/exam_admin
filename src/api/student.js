@@ -16,6 +16,19 @@ export default {
       data: student
     })
   },
+  resetPwd(ids) {
+    return request({
+      url: `/${group_name}/resetPwd`,
+      method: 'put',
+      data: ids
+    })
+  },
+  resetAll() {
+    return request({
+      url: `/${group_name}/resetAll`,
+      method: 'get'
+    })
+  },
   list(page) {
     return request({
       url: `/${group_name}/list`,

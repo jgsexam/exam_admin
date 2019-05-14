@@ -9,10 +9,40 @@
       show-checkbox
       node-key="roleId"
       default-expand-all
-      :render-content="renderContent"
       v-loading="this.$store.getters.loading"
       :expand-on-click-node="false"
-    ></el-tree>
+    >
+      <span
+        style="flex: 1; display: flex; align-items: center; justify-content: space-between; font-size: 16px; padding-right: 8px;"
+        slot-scope="{ node, data }"
+      >
+        <span>
+          <el-tooltip class="item" effect="dark" :content="data.roleComment" placement="top">
+            <span style="font-size: 14px;">{{node.label}}</span>
+          </el-tooltip>
+        </span>
+        <span>
+          <el-button
+            style="font-size: 12px; color: #409eff;"
+            type="text"
+            @click="toAuth(data.roleId)"
+            v-if="permission.indexOf('ar:role:auth') >= 0"
+          >分配权限</el-button>
+          <el-button
+            style="font-size: 12px; color: green;"
+            type="text"
+            @click="toUpdate(data.roleId)"
+            v-if="permission.indexOf('ar:role:update') >= 0"
+          >修改</el-button>
+          <el-button
+            style="font-size: 12px; color: red;"
+            type="text"
+            @click="deleteById(data.roleId)"
+            v-if="permission.indexOf('ar:role:delete') >= 0"
+          >删除</el-button>
+        </span>
+      </span>
+    </el-tree>
 
     <!-- 添加修改弹窗 -->
     <el-dialog
@@ -106,7 +136,7 @@ export default {
   },
 
   methods: {
-    delete (id) {
+    deleteById (id) {
       this.$confirm("确定删除这条记录?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -124,23 +154,6 @@ export default {
           }
         });
       });
-    },
-    renderContent (h, { node, data, store }) {
-      return (
-        <span style="flex: 1; display: flex; align-items: center; justify-content: space-between; font-size: 16px; padding-right: 8px;">
-          <span>
-            <el-tooltip class="item" effect="dark" content={data.roleComment} placement="top">
-              <span style="font-size: 14px;">
-                {node.label}
-              </span>
-            </el-tooltip>
-          </span>
-          <span>
-            <el-button style="font-size: 12px; color: #409eff;" type="text" on-click={() => this.toAuth(data.roleId)}>分配权限</el-button>
-            <el-button style="font-size: 12px; color: green;" type="text" on-click={() => this.toUpdate(data.roleId)}>修改</el-button>
-            <el-button style="font-size: 12px; color: red;" type="text" on-click={() => this.delete(data.roleId)}>删除</el-button>
-          </span>
-        </span>);
     },
     treeList () {
       this.$store.commit("SET_LOADING", true)
@@ -202,8 +215,8 @@ export default {
             this.roleAuths.push({
               raRole: this.checkRole,
               raAuth: value
-            });
-          });
+            })
+          })
           this.dialogAuth = true;
         }
       });
