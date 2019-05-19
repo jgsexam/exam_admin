@@ -17,7 +17,12 @@
         </el-form-item>
       </el-form>
       <hr>
-      <el-button type="primary" size="mini" @click="toAdd" v-if="permission.indexOf('question:add') >= 0">添加</el-button>
+      <el-button
+        type="primary"
+        size="mini"
+        @click="toAdd"
+        v-if="permission.indexOf('question:add') >= 0"
+      >添加</el-button>
     </div>
     <!-- 搜索框结束 -->
 
@@ -26,10 +31,11 @@
       <el-row v-for="(question, index) in page.list" :key="question.tfId">
         <el-card class="card-box">
           <div slot="header" class="clearfix">
-            <pre
-              class="question-content"
-              v-html="(index + 1) + '. ' + question.compTitle + '. (' + question.compScore + '分)' "
-            ></pre>
+            <div class="question-content">
+              <div class="num-div">{{ (index + 1) + '. ' }}</div>
+              <div class="content-div" v-html="question.compTitle"></div>
+              <div class="point-div">{{ '. (' + question.compScore + '分)' }}</div>
+            </div>
             <el-dropdown style="float: right; margin-top: 8px">
               <el-button type="primary" size="mini">
                 操作
@@ -37,13 +43,23 @@
               </el-button>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item>
-                  <el-button size="mini" type="success" @click="toUpdate(question.compId)" v-if="permission.indexOf('question:update') >= 0">编辑</el-button>
+                  <el-button
+                    size="mini"
+                    type="success"
+                    @click="toUpdate(question.compId)"
+                    v-if="permission.indexOf('question:update') >= 0"
+                  >编辑</el-button>
                 </el-dropdown-item>
                 <el-dropdown-item>
                   <el-button size="mini" type="primary" @click="lookResolve(question)">查看解析</el-button>
                 </el-dropdown-item>
                 <el-dropdown-item>
-                  <el-button size="mini" type="danger" @click="deleteById(question.compId)" v-if="permission.indexOf('question:delete') >= 0">删除</el-button>
+                  <el-button
+                    size="mini"
+                    type="danger"
+                    @click="deleteById(question.compId)"
+                    v-if="permission.indexOf('question:delete') >= 0"
+                  >删除</el-button>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -88,7 +104,9 @@
         v-loading="this.$store.getters.loading"
       >
         <el-form-item label="题目">
-          <el-input type="textarea" v-model="completion.compTitle" @input="checkComp"></el-input>
+          <el-input v-model="completion.compTitle">
+            <el-button slot="append" @click="initTinymce(completion, 1)">高级输入</el-button>
+          </el-input>
         </el-form-item>
         <el-form-item label="分值">
           <el-input v-model="completion.compScore" clearable></el-input>
@@ -109,7 +127,9 @@
           <el-input v-model="answer.answerContent" clearable></el-input>
         </el-form-item>
         <el-form-item label="解析">
-          <el-input type="textarea" v-model="completion.compResolve"></el-input>
+          <el-input v-model="completion.compResolve">
+            <el-button slot="append" @click="initTinymce(completion, 2)">高级输入</el-button>
+          </el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="save">提交</el-button>
@@ -118,16 +138,39 @@
       </el-form>
     </el-dialog>
     <!-- 添加弹窗结束 -->
+
+    <!-- 富文本编辑 -->
+    <el-dialog :visible.sync="tinymce.dialogTinymceVisible">
+      <tinymce ref="editor" :height="300" v-model="tinymce.tempValue"/>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="tinymce.dialogTinymceVisible = false">取消</el-button>
+        <el-button type="primary" @click="updateTinymceData">确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 
 import completionApi from '@/api/completion'
+import Tinymce from '@/components/Tinymce'
 
 export default {
-  data() {
+  components: { Tinymce },
+  watch: { // 使用这个属性，可以监视data中指令数据的变化，然后触发这个watch中对应的function处理函数
+    'completion.compTitle': function (newVal, oldVal) {
+      // 只要值变化了，就会触发
+      this.checkComp()
+    }
+  },
+  data () {
     return {
+      tinymce: {
+        type: 1, // 类型 1题目2解析
+        dialogTinymceVisible: false,
+        tempValue: '',
+        tempObj: {}, // ；临时对象
+      },
       permission: this.$store.getters.auths,
       dialogTitle: "添加题目", // 添加修改弹窗标题
       dialogFormVisible: false, // 控制弹窗显示隐藏
@@ -160,7 +203,7 @@ export default {
     }
   },
   methods: {
-    toAdd() {
+    toAdd () {
       // 打开添加弹窗
       this.completion.compId = ''
       this.dialogFormVisible = true
@@ -168,7 +211,7 @@ export default {
       // 弹窗提示一下
       this.$alert('填空题三个以上下划线为一个空，输入下划线的方法是在英文状态下按住shift+_，下划线键在键盘上方0右边')
     },
-    save() {
+    save () {
       if (this.completion.compId == '') {
         // 保存题目
         this.$store.commit("SET_LOADING", true)
@@ -191,7 +234,7 @@ export default {
         })
       }
     },
-    list() {
+    list () {
       // 分页查询
       this.$store.commit("SET_LOADING", true)
       completionApi.list(this.page).then(res => {
@@ -200,7 +243,7 @@ export default {
         }
       })
     },
-    toUpdate(compId) {
+    toUpdate (compId) {
       this.dialogTitle = '修改题目'
       this.dialogFormVisible = true
       completionApi.get(compId).then(res => {
@@ -214,7 +257,7 @@ export default {
       // 弹窗提示一下
       this.$alert('填空题三个以上下划线为一个空，输入下划线的方法是在英文状态下按住shift+_，下划线键在键盘上方0右边')
     },
-    deleteById(compId) {
+    deleteById (compId) {
       // 根据id删除
       // 根据id删除
       this.$confirm('确定从题库中删除本题吗?', '提示', {
@@ -231,26 +274,26 @@ export default {
       })
 
     },
-    lookResolve(question) {
+    lookResolve (question) {
       // 查看解析
-      this.$alert(question.compResolve, '答案解析');
+      this.$alert(question.compResolve, '答案解析', { dangerouslyUseHTMLString: true });
     },
-    handleSizeChange(val) {
+    handleSizeChange (val) {
       // 改变每页大小
       this.page.currentCount = val;
       this.list();
     },
-    handleCurrentChange(val) {
+    handleCurrentChange (val) {
       // 改变页数
       this.page.currentPage = val;
       this.list();
     },
-    removeAnswer() {
+    removeAnswer () {
       // 删除填空
       this.answerKey = this.answerKey - 1
       this.completion.answerList.splice(this.completion.answerList.length - 1, 1)
     },
-    addAnswer() {
+    addAnswer () {
       // 添加填空
       this.answerKey += 1
       let key = this.answerKey
@@ -260,7 +303,7 @@ export default {
         "answerNumber": key
       })
     },
-    checkComp() {
+    checkComp () {
       // 检查下划线
       let count = 0
       let str = this.completion.compTitle
@@ -296,10 +339,43 @@ export default {
       }
       // 最后，重新复制空的数量
       this.answerCount = count
+    },
+    initTinymce (obj, type) {
+      // 富文本输入
+      this.tinymce.type = type
+      // 初始化富文本的内容
+      let content = ''
+      if (type === 1) {
+        // 题目
+        content = obj.compTitle
+      } else if (type === 2) {
+        // 解析
+        content = obj.compResolve
+      }
+      this.tinymce.tempObj = obj
+      this.tinymce.dialogTinymceVisible = true
+      this.$refs.editor.setContent(content)
+    },
+    updateTinymceData () {
+      // 富文本保存
+      const content = this.$refs.editor.getContent()
+      // 编辑类型
+      const type = this.tinymce.type
+      if (type === 1) {
+        // 题目标题
+        this.completion.compTitle = content
+      } else if (type === 2) {
+        this.completion.compResolve = content
+      }
+      this.tinymce.dialogTinymceVisible = false
     }
   },
-  created() {
+  created () {
     this.list()
+    this.tinymce.dialogTinymceVisible = true
+  },
+  mounted () {
+    this.tinymce.dialogTinymceVisible = false
   }
 }
 </script>
@@ -330,5 +406,13 @@ export default {
   float: left;
   padding-top: 10px;
   line-height: 10px;
+}
+
+.num-div,
+.content-div,
+.point-div {
+  display: inline-block;
+  line-height: 16px;
+  vertical-align: top;
 }
 </style>

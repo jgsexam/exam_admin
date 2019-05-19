@@ -1,9 +1,13 @@
 <template>
   <div>
-    <div class="login-user">
-      <el-badge is-dot class="item" type="success"></el-badge>
-      当前登录：{{ name }}
-    </div>
+    <el-card class="header-card">
+      <div>
+        <el-badge is-dot class="item" type="success"></el-badge>
+        当前登录：{{ name }}
+      </div>
+      <div style="color: red">如需对题目进行操作，请使用edge，或将浏览器升级到ie11</div>
+      <a href="http://localhost:8080/export/paper">下载</a>
+    </el-card>
     <el-row :gutter="20">
       <el-col :span="12">
         <div class="grid-content bg-purple">
@@ -112,5 +116,9 @@ export default {
 
 .item {
   margin-top: 10px;
+}
+
+.header-card {
+  margin-bottom: 15px;
 }
 </style>

@@ -17,7 +17,12 @@
         </el-form-item>
       </el-form>
       <hr>
-      <el-button type="primary" size="mini" @click="toAdd" v-if="permission.indexOf('question:add') >= 0">添加</el-button>
+      <el-button
+        type="primary"
+        size="mini"
+        @click="toAdd"
+        v-if="permission.indexOf('question:add') >= 0"
+      >添加</el-button>
     </div>
     <!-- 搜索框结束 -->
 
@@ -26,7 +31,11 @@
       <el-row v-for="(question, index) in page.list" :key="question.choiceId">
         <el-card class="card-box">
           <div slot="header" class="clearfix">
-            <pre style="float: left; padding-top: 10px; line-height: 10px">{{ (index + 1) + '. ' + question.choiceTitle + '. (' + question.choiceScore + '分)' }}</pre>
+            <div style="float: left; padding-top: 10px; line-height: 10px">
+              <div class="num-div">{{ (index + 1) + '. ' }}</div>
+              <div class="content-div" v-html="question.choiceTitle"></div>
+              <div class="point-div">{{ '. (' + question.choiceScore + '分)' }}</div>
+            </div>
             <el-dropdown style="float: right; margin-top: 8px">
               <el-button type="primary" size="mini">
                 操作
@@ -34,22 +43,31 @@
               </el-button>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item>
-                  <el-button size="mini" type="success" @click="toUpdate(question.choiceId)" v-if="permission.indexOf('question:update') >= 0">编辑</el-button>
+                  <el-button
+                    size="mini"
+                    type="success"
+                    @click="toUpdate(question.choiceId)"
+                    v-if="permission.indexOf('question:update') >= 0"
+                  >编辑</el-button>
                 </el-dropdown-item>
                 <el-dropdown-item>
                   <el-button size="mini" type="primary" @click="lookResolve(question)">查看解析</el-button>
                 </el-dropdown-item>
                 <el-dropdown-item>
-                  <el-button size="mini" type="danger" @click="deleteById(question.choiceId)" v-if="permission.indexOf('question:delete') >= 0">删除</el-button>
+                  <el-button
+                    size="mini"
+                    type="danger"
+                    @click="deleteById(question.choiceId)"
+                    v-if="permission.indexOf('question:delete') >= 0"
+                  >删除</el-button>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </div>
-          <div
-            v-for="answer in question.choiceAnswer"
-            :key="answer.answerId"
-            class="item"
-          >{{ answer.answerNumber + '. ' + answer.answerContent }}</div>
+          <div v-for="answer in question.choiceAnswer" :key="answer.answerId" class="item">
+            <div class="num-div">{{ answer.answerNumber + '. ' }}</div>
+            <div class="content-div" v-html="answer.answerContent"></div>
+          </div>
           <div class="bottom clearfix">
             <div style="color: red">{{ '正确答案: ' + question.choiceTrue }}</div>
             <div style="margin-top: 8px;">
@@ -91,7 +109,9 @@
         v-loading="this.$store.getters.loading"
       >
         <el-form-item label="题目">
-          <el-input type="textarea" v-model="choice.choiceTitle"></el-input>
+          <el-input v-model="choice.choiceTitle">
+            <el-button slot="append" @click="initTinymce(choice, 1)">高级输入</el-button>
+          </el-input>
         </el-form-item>
         <el-form-item label="分值">
           <el-input v-model="choice.choiceScore" clearable></el-input>
@@ -109,14 +129,18 @@
           :label="'选项' + answer.answerNumber"
           :key="answer.answerNumber"
         >
-          <el-input v-model="answer.answerContent" clearable class="radio-input"></el-input>
+          <el-input v-model="answer.answerContent" clearable class="radio-input">
+            <el-button slot="append" @click="initTinymce(answer, 2)">高级输入</el-button>
+          </el-input>
           <el-button @click.prevent="removeAnswer(answer)">删除</el-button>
           <el-tooltip :content="answer.answerTrue==1?'正确':'错误'" placement="top">
             <el-switch v-model="answer.answerTrue" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
           </el-tooltip>
         </el-form-item>
         <el-form-item label="解析">
-          <el-input type="textarea" v-model="choice.choiceResolve"></el-input>
+          <el-input v-model="choice.choiceResolve">
+            <el-button slot="append" @click="initTinymce(choice, 3)">高级输入</el-button>
+          </el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="save">提交</el-button>
@@ -126,16 +150,32 @@
       </el-form>
     </el-dialog>
     <!-- 添加弹窗结束 -->
+    <!-- 富文本编辑 -->
+    <el-dialog :visible.sync="tinymce.dialogTinymceVisible">
+      <tinymce ref="editor" :height="300" v-model="tinymce.tempValue"/>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="tinymce.dialogTinymceVisible = false">取消</el-button>
+        <el-button type="primary" @click="updateTinymceData">确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 
 import choiceApi from '@/api/choice'
+import Tinymce from '@/components/Tinymce'
 
 export default {
-  data() {
+  components: { Tinymce },
+  data () {
     return {
+      tinymce: {
+        type: 1, // 类型 1题目2选项3解析
+        dialogTinymceVisible: false,
+        tempValue: '',
+        tempObj: {}, // ；临时对象
+      },
       permission: this.$store.getters.auths,
       dialogTitle: "添加题目", // 添加修改弹窗标题
       dialogFormVisible: false, // 控制弹窗显示隐藏
@@ -175,14 +215,14 @@ export default {
     }
   },
   methods: {
-    toAdd() {
+    toAdd () {
       // 打开添加弹窗
       // 清空题目
       this.choice.choiceId = ''
       this.dialogTitle = '添加题目'
       this.dialogFormVisible = true
     },
-    save() {
+    save () {
       // 保存题目
       this.$store.commit("SET_LOADING", true);
       choiceApi.save(this.choice).then(res => {
@@ -193,7 +233,7 @@ export default {
         this.list()
       })
     },
-    removeAnswer(item) {
+    removeAnswer (item) {
       // 删除选项
       var index = this.choice.choiceAnswer.indexOf(item)
       if (index !== -1) {
@@ -213,7 +253,7 @@ export default {
         }
       }
     },
-    addAnswer() {
+    addAnswer () {
       // 添加选项
       this.answerKey = this.answerKey + 1
       let key = this.answerKey
@@ -224,28 +264,28 @@ export default {
         "answerNumber": this.choiceNumber[key]
       });
     },
-    list() {
+    list () {
       // 分页查询
       this.$store.commit("SET_LOADING", true);
       choiceApi.list(this.page).then(res => {
         this.page = res.data
       })
     },
-    lookResolve(question) {
+    lookResolve (question) {
       // 查看解析
-      this.$alert(question.choiceResolve, '答案解析');
+      this.$alert(question.choiceResolve, '答案解析', { dangerouslyUseHTMLString: true });
     },
-    handleSizeChange(val) {
+    handleSizeChange (val) {
       // 改变每页大小
       this.page.currentCount = val;
       this.list();
     },
-    handleCurrentChange(val) {
+    handleCurrentChange (val) {
       // 改变页数
       this.page.currentPage = val;
       this.list();
     },
-    deleteById(choiceId) {
+    deleteById (choiceId) {
       // 根据id删除
       this.$confirm('确定从题库中删除本题吗?', '提示', {
         confirmButtonText: '确定',
@@ -260,7 +300,7 @@ export default {
         })
       })
     },
-    toUpdate(choiceId) {
+    toUpdate (choiceId) {
       choiceApi.get(choiceId).then(res => {
         this.choice = res.data
         this.dialogTitle = '修改题目'
@@ -268,9 +308,53 @@ export default {
         this.answerKey = res.data.choiceAnswer.length - 1
       })
     },
+    initTinymce (obj, type) {
+      // 富文本输入
+      this.tinymce.type = type
+      // 初始化富文本的内容
+      let content = ''
+      if (type === 1) {
+        // 题目
+        content = obj.choiceTitle
+      } else if (type === 2) {
+        // 选项
+        content = obj.answerContent
+      } else if (type === 3) {
+        // 解析
+        content = obj.choiceResolve
+      }
+      this.tinymce.tempObj = obj
+      this.tinymce.dialogTinymceVisible = true
+      this.$refs.editor.setContent(content)
+    },
+    updateTinymceData () {
+      // 富文本保存
+      const content = this.$refs.editor.getContent()
+      // 编辑类型
+      const type = this.tinymce.type
+      if (type === 1) {
+        // 题目标题
+        this.choice.choiceTitle = content
+      } else if (type === 2) {
+        // 是选项
+        const tempAnswer = this.tinymce.tempObj
+        const number = tempAnswer.answerNumber
+        // 获取选择题的answer
+        // 遍历
+        let answer = this.choice.choiceAnswer.filter(item => item.answerNumber == number)
+        answer[0].answerContent = content
+      } else if (type === 3) {
+        this.choice.choiceResolve = content
+      }
+      this.tinymce.dialogTinymceVisible = false
+    }
   },
-  created() {
+  created () {
     this.list()
+    this.tinymce.dialogTinymceVisible = true
+  },
+  mounted () {
+    this.tinymce.dialogTinymceVisible = false
   }
 }
 </script>
@@ -295,5 +379,13 @@ export default {
 
 .page-div {
   margin-top: 15px;
+}
+
+.num-div,
+.content-div,
+.point-div {
+  display: inline-block;
+  line-height: 16px;
+  vertical-align:top;
 }
 </style>

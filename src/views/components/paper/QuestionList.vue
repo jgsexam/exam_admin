@@ -21,7 +21,10 @@
         <el-row v-for="(question, index) in config.questionDetailList" :key="question.choiceId">
           <el-card class="card-box">
             <div slot="header" class="clearfix">
-              <pre style="float: left; padding-top: 10px; line-height: 10px">{{ (index + 1) + '. ' + question.choiceTitle + '. (' + question.choiceScore + '分)' }}</pre>
+              <div
+                style="float: left; padding-top: 10px; line-height: 10px"
+                v-html="(index + 1) + '. ' + question.choiceTitle + '. (' + question.choiceScore + '分)'"
+              ></div>
               <div style="float: right; margin-top: 8px">
                 <el-button
                   size="mini"
@@ -34,7 +37,8 @@
               v-for="answer in question.choiceAnswer"
               :key="answer.answerId"
               class="item"
-            >{{ answer.answerNumber + '. ' + answer.answerContent }}</div>
+              v-html="answer.answerNumber + '. ' + answer.answerContent"
+            ></div>
             <div class="bottom clearfix">
               <div style="color: red">{{ '正确答案: ' + question.choiceTrue }}</div>
               <div style="margin-top: 8px;">
@@ -58,7 +62,10 @@
         <el-row v-for="(question, index) in config.questionDetailList" :key="question.tfId">
           <el-card class="card-box">
             <div slot="header" class="clearfix">
-              <pre style="float: left; padding-top: 10px; line-height: 10px">{{ (index + 1) + '. ' + question.tfTitle + '. (' + question.tfScore + '分)' }}</pre>
+              <div
+                style="float: left; padding-top: 10px; line-height: 10px"
+                v-html="(index + 1) + '. ' + question.tfTitle + '. (' + question.tfScore + '分)'"
+              ></div>
               <div style="float: right; margin-top: 8px">
                 <el-button
                   size="mini"
@@ -90,10 +97,10 @@
         <el-row v-for="(question, index) in config.questionDetailList" :key="question.tfId">
           <el-card class="card-box">
             <div slot="header" class="clearfix">
-              <pre
+              <div
                 class="question-content"
                 v-html="(index + 1) + '. ' + question.compTitle + '. (' + question.compScore + '分)' "
-              ></pre>
+              ></div>
               <div style="float: right; margin-top: 8px">
                 <el-button
                   size="mini"
@@ -124,7 +131,10 @@
         <el-row v-for="(code, index) in config.questionDetailList" :key="code.codeId">
           <el-card class="card-box">
             <div slot="header" class="clearfix">
-              <pre style="float: left; padding-top: 10px; line-height: 10px">{{ (index + 1) + '. ' + code.codeTitle + '. (' + code.codeScore + '分)' }}</pre>
+              <div
+                style="float: left; padding-top: 10px; line-height: 10px"
+                v-html="(index + 1) + '. ' + code.codeTitle + '. (' + code.codeScore + '分)'"
+              ></div>
               <div style="float: right; margin-top: 8px">
                 <el-button
                   size="mini"
@@ -137,7 +147,8 @@
               v-for="answer in code.answerList"
               :key="answer.answerId"
               class="item"
-            >{{ answer.answerNumber + '. ' + answer.answerProblem }}</div>
+              v-html="answer.answerNumber + '. ' + answer.answerProblem"
+            ></div>
             <div class="compile-item">编译器：{{ code.compileDO.compileName }}</div>
             <div class="bottom clearfix">
               <div style="margin-top: 8px;">
@@ -161,7 +172,10 @@
         <el-row v-for="(question, index) in config.questionDetailList" :key="question.questionId">
           <el-card class="card-box">
             <div slot="header" class="clearfix">
-              <pre style="float: left; padding-top: 10px; line-height: 10px">{{ (index + 1) + '. ' + question.questionTitle + '. (' + question.questionScore + '分)' }}</pre>
+              <div
+                style="float: left; padding-top: 10px; line-height: 10px"
+                v-html="(index + 1) + '. ' + question.questionTitle + '. (' + question.questionScore + '分)'"
+              ></div>
               <div style="float: right; margin-top: 8px">
                 <el-button
                   size="mini"
@@ -174,7 +188,8 @@
               v-for="answer in question.answerList"
               :key="answer.answerId"
               class="item"
-            >{{ answer.answerNumber + '. ' + answer.answerProblem }}</div>
+              v-html="answer.answerNumber + '. ' + answer.answerProblem"
+            ></div>
             <div class="bottom clearfix">
               <!-- <div style="color: red">{{ '正确答案: ' + question.choiceTrue }}</div> -->
               <div style="margin-top: 8px;">
@@ -262,5 +277,13 @@ export default {
   font-size: 18px;
   margin-bottom: 15px;
   text-align: center;
+}
+
+.num-div,
+.content-div,
+.point-div {
+  display: inline-block;
+  line-height: 16px;
+  vertical-align: top;
 }
 </style>
