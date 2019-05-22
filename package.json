@@ -14,7 +14,6 @@
     "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml"
   },
   "dependencies": {
-    "@tinymce/tinymce-vue": "^2.0.0",
     "axios": "0.18.0",
     "echarts": "^4.2.1",
     "element-ui": "2.8.2",
@@ -22,7 +21,6 @@
     "mockjs": "1.0.1-beta3",
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
-    "tinymce": "^4.7.5",
     "v-charts": "^1.19.0",
     "vue": "2.5.17",
     "vue-router": "3.0.1",

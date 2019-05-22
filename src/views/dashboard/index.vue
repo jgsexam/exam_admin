@@ -5,8 +5,15 @@
         <el-badge is-dot class="item" type="success"></el-badge>
         当前登录：{{ name }}
       </div>
-      <div style="color: red">如需对题目进行操作，请使用edge，或将浏览器升级到ie11</div>
-      <a href="http://localhost:8080/export/paper">下载</a>
+      <div style="color: red">由于火狐浏览器和Chrome浏览器不支持多图上传</div>
+      <div style="color: red">题目中如有图片、公式等，请不要一并复制，请单张上传</div>
+      <div style="color: red">
+        如想使用多图上传，请将IE浏览器
+        <a style="color: #409eff;"
+          href="http://downza.91speed.com.cn/2019/01/09/IE11Windows6.1.zip?ssig=1ed933d71b1cd8be2733a6604dac458592321d85&time_stamp=1558426485&fn=4dc63c16153fee452a7e625325e6f506"
+        >升级至IE11版本</a>，
+        改用IE浏览器或360浏览器兼容模式
+      </div>
     </el-card>
     <el-row :gutter="20">
       <el-col :span="12">
