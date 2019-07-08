@@ -384,14 +384,15 @@
         :data="roleTree"
         :props="defaultProps"
         show-checkbox
+        ref="tree"
         node-key="roleId"
         default-expand-all
         :default-checked-keys="checkIds"
-        :default-expanded-keys="checkIds"
         @check-change="handleCheckChange"
       ></el-tree>
       <el-button size="mini" type="primary" @click="updateRole">提交</el-button>
       <el-button size="mini" @click="dialogRoleTree=false">取消</el-button>
+      <el-button @click="checkIds=[]">火狐</el-button>
     </el-dialog>
     <!-- 权限操作组件结束 -->
 
@@ -505,7 +506,9 @@ export default {
       isdisabledFn: false,
       dialogTitle: "新增教师",
       currentPage4: 4,
-      roleTree: [], // 角色树形列表
+      roleTree: [
+        { roleId: '' }
+      ], // 角色树形列表
       defaultProps: {
         children: "list",
         label: "roleName"
@@ -728,6 +731,10 @@ export default {
     checkRole (id) {
       this.checkTeacher = id
       this.teacherRoles = []
+      this.dialogRoleTree = true;
+      this.$nextTick(() => {
+        this.$refs.tree.setCheckedKeys([])
+      })
       TeacherRoleApi.roleList(id).then(res => {
         if (res.code == 200) {
           this.checkIds = res.data
@@ -738,7 +745,6 @@ export default {
               trRole: value
             })
           })
-          this.dialogRoleTree = true;
         }
       })
     },

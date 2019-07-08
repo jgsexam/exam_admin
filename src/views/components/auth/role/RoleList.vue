@@ -85,6 +85,7 @@
         :props="authProps"
         show-checkbox
         node-key="authId"
+        ref="tree"
         v-loading="this.$store.getters.loading"
         :expand-on-click-node="false"
         default-expand-all
@@ -207,6 +208,10 @@ export default {
       // 查询权限，打开权限弹窗
       this.checkRole = id;
       this.roleAuths = []
+      this.dialogAuth = true;
+      this.$nextTick(() => {
+        this.$refs.tree.setCheckedKeys([])
+      })
       roleAuthApi.authList(id).then(res => {
         if (res.code == 200) {
           this.checkIds = res.data;
@@ -217,7 +222,6 @@ export default {
               raAuth: value
             })
           })
-          this.dialogAuth = true;
         }
       });
     },

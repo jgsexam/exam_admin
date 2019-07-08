@@ -143,6 +143,22 @@ export const constantRouterMap = [
     ]
   },
   {
+    path: '/exam',
+    component: Layout,
+    redirect: '/exam/room',
+    name: 'exam',
+    meta: { title: '考试管理', icon: 'icon-shijuan' },
+    children: [
+      {
+        path: 'room',
+        name: 'room',
+        component: () => import('@/views/components/exam/RoomList'),
+        meta: { title: '考场列表', icon: 'icon-shijuan' },
+        auth: 'ex:room:list'
+      }
+    ]
+  },
+  {
     path: '/auth',
     component: Layout,
     redirect: '/auth/role',
