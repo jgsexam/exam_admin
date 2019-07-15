@@ -34,11 +34,16 @@ export default {
       data: room
     })
   },
-  free(room) {
+  free(id) {
     return request({
-      url: `/${group_name}/freeList`,
-      method: 'get',
-      data: room
+      url: `/${group_name}/freeList/${id}`,
+      method: 'get'
+    })
+  },
+  all() {
+    return request({
+      url: `/${group_name}/all`,
+      method: 'get'
     })
   }
 }

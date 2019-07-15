@@ -41,6 +41,26 @@
       v-loading="this.$store.getters.loading"
     >
       <el-table-column type="index" width="50"></el-table-column>
+      <el-table-column prop="examDate" sortable="custom" label="考试日期"></el-table-column>
+      <el-table-column prop="room.roomName" sortable="custom" label="考场"></el-table-column>
+      <el-table-column prop="examTime" sortable="custom" label="考试时间/分钟"></el-table-column>
+      <el-table-column prop="paper.paperTitle" sortable="custom" label="所用试卷"></el-table-column>
+      <el-table-column prop="teacher.teacherName" sortable="custom" label="创建人"></el-table-column>
+      <el-table-column prop="examCreateTime" sortable="custom" label="创建时间"></el-table-column>
+      <el-table-column sortable="custom" label="考试类型">
+        <template slot-scope="scope">
+          <el-tag type="info" v-if="scope.row.examType == 0">平常测试</el-tag>
+          <el-tag type="success" v-if="scope.row.examType == 1">考试</el-tag>
+          <el-tag type="error" v-if="scope.row.examType == 2">补考</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column sortable="custom" label="状态">
+        <template slot-scope="scope">
+          <el-tag type="info" v-if="scope.row.examState == 0">未开始</el-tag>
+          <el-tag type="success" v-if="scope.row.examState == 1">考试中</el-tag>
+          <el-tag type="error" v-if="scope.row.examState == 2">已结束</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column fixed="right" label="操作" width="100px">
         <template class="paper-do" slot-scope="scope">
           <el-dropdown>
@@ -151,7 +171,7 @@ import examApi from '@/api/exam'
 import roomApi from '@/api/room'
 import paperApi from '@/api/paper'
 export default {
-  data() {
+  data () {
     return {
       permission: this.$store.getters.auths,
       dialogFormVisible: false, // 弹出层隐藏
@@ -174,20 +194,20 @@ export default {
     }
   },
   methods: {
-    handleSizeChange(val) {
+    handleSizeChange (val) {
       this.page.currentCount = val
       this.list()
     },
-    handleCurrentChange(val) {
+    handleCurrentChange (val) {
       this.page.currentPage = val
       this.list()
     },
-    sortHandler(column) { // 排序查询
+    sortHandler (column) { // 排序查询
       this.page.sortName = column.prop
       this.page.sortOrder = column.order
       this.list()
     },
-    save() { // 保存或修改
+    save () { // 保存或修改
       if (this.exam.examId == '') {
         examApi.save(this.exam).then(res => {
           if (res.code == 200) {
@@ -206,7 +226,7 @@ export default {
         })
       }
     },
-    list() { // 分页查询
+    list () { // 分页查询
       this.exam.examId = ''
       this.$store.commit("SET_LOADING", true)
       examApi.list(this.page).then(res => {
@@ -215,41 +235,41 @@ export default {
         }
       })
     },
-    getRoomList() {
+    getRoomList (id) {
       // 查询空闲教室
-      roomApi.free().then(res => {
+      roomApi.free(id).then(res => {
         this.roomList = res.data
       })
     },
-    getPaperList() {
+    getPaperList () {
       // 获取所有的试卷
       paperApi.all().then(res => {
         this.paperList = res.data
       })
     },
-    toUpdate(id) { // 打开弹窗，进行修改
+    toUpdate (id) { // 打开弹窗，进行修改
       // 根据id查询
-      this.getRoomList()
       examApi.get(id).then(res => {
         if (res.code == 200) {
           this.exam = res.data
+          this.getRoomList(res.data.examRoom)
           this.dialogTitle = '修改考试'
           this.dialogFormVisible = true
         }
       })
     },
-    toAdd() {
-      this.getRoomList()
+    toAdd () {
+      this.getRoomList(null)
       this.dialogTitle = '创建考试'
       this.dialogFormVisible = true
     },
-    deleteById(id) {
-      /* this.$confirm('确定删除这条记录?', '提示', {
+    deleteById (id) {
+      this.$confirm('确定删除这条记录?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'error'
       }).then(() => {
-        roomApi.delete(id).then(res => {
+        examApi.delete(id).then(res => {
           if (res.code == 200) {
             this.$message({
               message: res.msg,
@@ -260,10 +280,10 @@ export default {
           }
           this.list()
         })
-      }) */
+      })
     },
   },
-  created() {
+  created () {
     this.list()
     this.getPaperList()
   }

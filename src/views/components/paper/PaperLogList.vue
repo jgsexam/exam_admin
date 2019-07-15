@@ -15,7 +15,6 @@
             filterable
             placeholder="请选择"
             clearable
-            @change="getMajor"
           >
             <el-option
               v-for="college in collegeList"

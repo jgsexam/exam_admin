@@ -3,7 +3,7 @@ var group_name = 'exam'
 export default {
   save(room) {
     return request({
-      url: `/${group_name}/add`,
+      url: `/${group_name}/create`,
       method: 'post',
       data: room
     })
