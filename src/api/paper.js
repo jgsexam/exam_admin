@@ -58,5 +58,11 @@ export default {
       url: `/${group_name}/typeNum/${paperId}`,
       method: 'get'
     })
+  },
+  all() {
+    return request({
+      url: `/${group_name}/all`,
+      method: 'get'
+    })
   }
 }

@@ -2,7 +2,7 @@
   <div>
     <div class="table-header">
       <!-- 搜索部分开始 -->
-      <el-form :inline="true" :model="page" class="demo-form-inline" size="mini">
+      <!-- <el-form :inline="true" :model="page" class="demo-form-inline" size="mini">
         <el-form-item label="教室名">
           <el-input v-model="page.params.roomName" placeholder="教室名" clearable></el-input>
         </el-form-item>
@@ -18,7 +18,7 @@
         <el-form-item>
           <el-button type="primary" @click="list">查询</el-button>
         </el-form-item>
-      </el-form>
+      </el-form>-->
       <!-- 搜索部分结束 -->
 
       <hr />
@@ -26,7 +26,7 @@
         type="primary"
         size="mini"
         @click="toAdd"
-        v-if="permission.indexOf('ex:room:add') >= 0"
+        v-if="permission.indexOf('ex:exam:add') >= 0"
       >添加</el-button>
     </div>
 
@@ -41,15 +41,6 @@
       v-loading="this.$store.getters.loading"
     >
       <el-table-column type="index" width="50"></el-table-column>
-      <el-table-column prop="roomName" sortable="custom" label="教室名"></el-table-column>
-      <el-table-column prop="roomBuilding" sortable="custom" label="楼栋"></el-table-column>
-      <el-table-column sortable="custom" label="状态">
-        <template slot-scope="scope">
-          <el-tag type="success" v-if="scope.row.roomState == 1">空闲</el-tag>
-          <el-tag type="info" v-if="scope.row.roomState == 2">占用</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="roomComment" sortable="custom" label="备注"></el-table-column>
       <el-table-column fixed="right" label="操作" width="100px">
         <template class="paper-do" slot-scope="scope">
           <el-dropdown>
@@ -62,16 +53,16 @@
                 <el-button
                   size="mini"
                   type="success"
-                  @click="toUpdate(scope.row.roomId)"
-                  v-if="permission.indexOf('ex:room:update') >= 0"
+                  @click="toUpdate(scope.row.examId)"
+                  v-if="permission.indexOf('ex:exam:update') >= 0"
                 >编辑</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
                   size="mini"
                   type="danger"
-                  @click="deleteById(scope.row.roomId)"
-                  v-if="permission.indexOf('ex:room:delete') >= 0"
+                  @click="deleteById(scope.row.examId)"
+                  v-if="permission.indexOf('ex:exam:delete') >= 0"
                 >删除</el-button>
               </el-dropdown-item>
             </el-dropdown-menu>
@@ -101,15 +92,50 @@
       :visible.sync="dialogFormVisible"
       v-loading="this.$store.getters.loading"
     >
-      <el-form :model="room" label-width="80px" size="mini">
-        <el-form-item label="教室名">
-          <el-input v-model="room.roomName" clearable></el-input>
+      <el-form :model="exam" label-width="80px" size="mini">
+        <el-form-item label="考场">
+          <el-select v-model="exam.examRoom" filterable placeholder="请选择" clearable>
+            <el-option
+              v-for="room in roomList"
+              :key="room.roomId"
+              :label="room.roomName"
+              :value="room.roomId"
+            ></el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="楼栋数">
-          <el-input v-model="room.roomBuilding" clearable></el-input>
+        <el-form-item label="考试日期">
+          <el-date-picker
+            type="datetime"
+            placeholder="考试日期"
+            v-model="exam.examDate"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            style="width: 100%"
+          ></el-date-picker>
+        </el-form-item>
+        <el-form-item label="考试时间">
+          <el-input v-model="exam.examTime" clearable>
+            <template slot="append">分钟</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="试卷">
+          <el-select v-model="exam.examPaper" filterable placeholder="请选择考试所用试卷" clearable>
+            <el-option
+              v-for="paper in paperList"
+              :key="paper.paperId"
+              :label="paper.paperTitle"
+              :value="paper.paperId"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="考试类型">
+          <el-select v-model="exam.examType" filterable placeholder="请选择" clearable>
+            <el-option key="0" label="平常测试" value="0"></el-option>
+            <el-option key="1" label="普通考试" value="1"></el-option>
+            <el-option key="2" label="补考" value="2"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="备注">
-          <el-input type="textarea" v-model="room.roomComment" clearable></el-input>
+          <el-input type="textarea" v-model="exam.examComment" clearable></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="save">提交</el-button>
@@ -121,7 +147,9 @@
   </div>
 </template>
 <script>
+import examApi from '@/api/exam'
 import roomApi from '@/api/room'
+import paperApi from '@/api/paper'
 export default {
   data() {
     return {
@@ -139,13 +167,10 @@ export default {
         },
         list: []
       },
-      room: {
-        roomId: '', // id
-        roomName: '', // 教室名
-        roomBuilding: '', // 几栋
-        roomState: 1, // 1空闲2占用
-        roomComment: '' // 备注 
-      },
+      roomList: [], // 考场列表
+      paperList: [], // 试卷列表
+      exam: {
+      }
     }
   },
   methods: {
@@ -163,8 +188,8 @@ export default {
       this.list()
     },
     save() { // 保存或修改
-      if (this.room.roomId == '') {
-        roomApi.save(this.room).then(res => {
+      if (this.exam.examId == '') {
+        examApi.save(this.exam).then(res => {
           if (res.code == 200) {
             this.$message.success(res.msg)
             this.dialogFormVisible = false
@@ -172,7 +197,7 @@ export default {
           }
         })
       } else {
-        roomApi.update(this.room).then(res => {
+        examApi.update(this.exam).then(res => {
           if (res.code == 200) {
             this.$message.success(res.msg)
             this.dialogFormVisible = false
@@ -182,30 +207,44 @@ export default {
       }
     },
     list() { // 分页查询
-      this.room.roomId = ''
+      this.exam.examId = ''
       this.$store.commit("SET_LOADING", true)
-      roomApi.list(this.page).then(res => {
+      examApi.list(this.page).then(res => {
         if (res.code == 200) {
           this.page = res.data
         }
       })
     },
+    getRoomList() {
+      // 查询空闲教室
+      roomApi.free().then(res => {
+        this.roomList = res.data
+      })
+    },
+    getPaperList() {
+      // 获取所有的试卷
+      paperApi.all().then(res => {
+        this.paperList = res.data
+      })
+    },
     toUpdate(id) { // 打开弹窗，进行修改
       // 根据id查询
-      roomApi.get(id).then(res => {
+      this.getRoomList()
+      examApi.get(id).then(res => {
         if (res.code == 200) {
-          this.room = res.data
-          this.dialogTitle = '修改教室'
+          this.exam = res.data
+          this.dialogTitle = '修改考试'
           this.dialogFormVisible = true
         }
       })
     },
     toAdd() {
-      this.dialogTitle = '新增教室'
+      this.getRoomList()
+      this.dialogTitle = '创建考试'
       this.dialogFormVisible = true
     },
     deleteById(id) {
-      this.$confirm('确定删除这条记录?', '提示', {
+      /* this.$confirm('确定删除这条记录?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'error'
@@ -221,11 +260,12 @@ export default {
           }
           this.list()
         })
-      })
+      }) */
     },
   },
   created() {
     this.list()
+    this.getPaperList()
   }
 }
 </script>
@@ -237,5 +277,40 @@ export default {
 
 .page-div {
   margin-top: 10px;
+}
+
+.line {
+  text-align: center;
+}
+
+.el-select {
+  display: block !important;
+}
+
+.top {
+  text-align: center;
+}
+
+.paper-question-div {
+  color: #67c23a;
+}
+
+.read-dialog {
+  height: 85%;
+}
+
+.dialog-content {
+  height: 100%;
+}
+
+.input-div {
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 0 5px #ccc;
+}
+
+.delete-div {
+  text-align: right;
+  position: relative;
 }
 </style>

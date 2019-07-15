@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-var group_name = 'room'
+var group_name = 'exam'
 export default {
   save(room) {
     return request({
@@ -36,8 +36,8 @@ export default {
   },
   free(room) {
     return request({
-      url: `/${group_name}/freeList`,
-      method: 'get',
+      url: `/${group_name}/free`,
+      method: 'put',
       data: room
     })
   }
