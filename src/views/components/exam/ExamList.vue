@@ -2,23 +2,43 @@
   <div>
     <div class="table-header">
       <!-- 搜索部分开始 -->
-      <!-- <el-form :inline="true" :model="page" class="demo-form-inline" size="mini">
-        <el-form-item label="教室名">
-          <el-input v-model="page.params.roomName" placeholder="教室名" clearable></el-input>
+      <el-form :inline="true" :model="page" class="demo-form-inline" size="mini">
+        <el-form-item label="考场">
+          <el-input v-model="page.params.examRoom" placeholder="考场" clearable></el-input>
         </el-form-item>
-        <el-form-item label="楼栋">
-          <el-input v-model="page.params.roomBuilding" placeholder="楼栋" clearable></el-input>
+        <el-form-item label="创建人">
+          <el-input v-model="page.params.examDate" placeholder="创建人" clearable></el-input>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="page.params.roomState" filterable placeholder="请选择" clearable>
-            <el-option key="1" label="空闲" value="1"></el-option>
-            <el-option key="2" label="占用" value="2"></el-option>
+          <el-select v-model="page.params.examState" filterable placeholder="请选择" clearable>
+            <el-option key="0" label="未开始" value="0"></el-option>
+            <el-option key="1" label="已开始" value="1"></el-option>
+            <el-option key="2" label="已结束" value="2"></el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item label="考试类型">
+          <el-select v-model="page.params.examType" filterable placeholder="考试类型" clearable>
+            <el-option key="0" label="测试" value="0"></el-option>
+            <el-option key="1" label="考试" value="1"></el-option>
+            <el-option key="2" label="补考" value="2"></el-option>
+          </el-select>
+        </el-form-item>
+         <el-form-item label="考试日期">
+          <div class="block">
+            <el-date-picker
+              v-model="timeInterval"
+              type="datetimerange"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            ></el-date-picker>
+          </div>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="list">查询</el-button>
         </el-form-item>
-      </el-form>-->
+      </el-form>
       <!-- 搜索部分结束 -->
 
       <hr />
@@ -57,7 +77,7 @@
       <el-table-column sortable="custom" label="状态">
         <template slot-scope="scope">
           <el-tag type="info" v-if="scope.row.examState == 0">未开始</el-tag>
-          <el-tag type="success" v-if="scope.row.examState == 1">考试中</el-tag>
+          <el-tag type="success" v-if="scope.row.examState == 1">已开始</el-tag>
           <el-tag type="error" v-if="scope.row.examState == 2">已结束</el-tag>
         </template>
       </el-table-column>
@@ -76,6 +96,46 @@
                   @click="toUpdate(scope.row.examId)"
                   v-if="permission.indexOf('ex:exam:update') >= 0"
                 >编辑</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
+                  size="mini"
+                  type="primary"
+                  @click="toUpdate(scope.row.examId)"
+                  v-if="permission.indexOf('ex:exam:update') >= 0"
+                >添加监考老师</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
+                  size="mini"
+                  type="success"
+                  @click="toUpdate(scope.row.examId)"
+                  v-if="permission.indexOf('ex:exam:update') >= 0"
+                >查看监考老师</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
+                  size="mini"
+                  type="primary"
+                  @click="toUpdate(scope.row.examId)"
+                  v-if="permission.indexOf('ex:exam:update') >= 0"
+                >添加学生</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
+                  size="mini"
+                  type="success"
+                  @click="toUpdate(scope.row.examId)"
+                  v-if="permission.indexOf('ex:exam:update') >= 0"
+                >查看学生</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
+                  size="mini"
+                  type="primary"
+                  @click="toUpdate(scope.row.examId)"
+                  v-if="permission.indexOf('ex:exam:update') >= 0"
+                >考试详情</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
@@ -175,6 +235,7 @@ export default {
     return {
       permission: this.$store.getters.auths,
       dialogFormVisible: false, // 弹出层隐藏
+      timeInterval: null, // 学年度时间区间数组
       dialogTitle: '新增教室',
       page: {
         currentPage: 1,
@@ -229,6 +290,13 @@ export default {
     list () { // 分页查询
       this.exam.examId = ''
       this.$store.commit("SET_LOADING", true)
+      if (this.timeInterval != null) {
+        this.page.params.startTime = this.timeInterval[0]
+        this.page.params.endTime = this.timeInterval[1]
+      } else {
+        this.page.params.startTime = ''
+        this.page.params.endTime = ''
+      }
       examApi.list(this.page).then(res => {
         if (res.code == 200) {
           this.page = res.data
