@@ -23,7 +23,7 @@
             <el-option key="2" label="补考" value="2"></el-option>
           </el-select>
         </el-form-item>
-         <el-form-item label="考试日期">
+        <el-form-item label="考试日期">
           <div class="block">
             <el-date-picker
               v-model="timeInterval"
@@ -101,16 +101,16 @@
                 <el-button
                   size="mini"
                   type="primary"
-                  @click="toUpdate(scope.row.examId)"
-                  v-if="permission.indexOf('ex:exam:update') >= 0"
+                  @click="toAddTeacher(scope.row.examId)"
+                  v-if="permission.indexOf('ex:insp:add') >= 0 && scope.row.examState == 0"
                 >添加监考老师</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
                   size="mini"
                   type="success"
-                  @click="toUpdate(scope.row.examId)"
-                  v-if="permission.indexOf('ex:exam:update') >= 0"
+                  @click="getTeacherList(scope.row.examId)"
+                  v-if="permission.indexOf('ex:insp:list') >= 0"
                 >查看监考老师</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
@@ -224,10 +224,72 @@
       </el-form>
     </el-dialog>
     <!-- 新增 编辑弹窗结束 -->
+
+    <!-- 添加监考教师开始 -->
+    <el-dialog
+      title="添加监考教师"
+      :visible.sync="dialogAddTeacher"
+      v-loading="this.$store.getters.loading"
+    >
+      <el-form :model="examTeacher" label-width="80px" size="mini">
+        <el-form-item label="监考教师">
+          <el-select v-model="examTeacher.ttTeacher" filterable placeholder="请选择" clearable>
+            <el-option
+              v-for="teacher in teacherList"
+              :key="teacher.teacherId"
+              :label="teacher.teacherName"
+              :value="teacher.teacherId"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="addTeacher">提交</el-button>
+          <el-button @click="dialogAddTeacher=false">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+    <!-- 添加监考教师结束 -->
+
+    <!-- 监考教师列表开始 -->
+    <el-dialog title="监考教师" :visible.sync="dialogTeacherList">
+      <!-- 列表开始 -->
+      <el-table
+        :data="examTeacherList"
+        border
+        stripe
+        style="width: 100%"
+        size="mini"
+        v-loading="this.$store.getters.loading"
+      >
+        <el-table-column prop="teacher.teacherNumber" sortable="custom" label="工号"></el-table-column>
+        <el-table-column prop="teacher.teacherName" sortable="custom" label="姓名"></el-table-column>
+        <el-table-column sortable="custom" label="性别">
+          <template slot-scope="scope">
+            <span>{{ scope.row.teacher.teacherSex==1?'男':'女' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="teacher.teacherAge" sortable="custom" label="年龄"></el-table-column>
+        <el-table-column prop="teacher.teacherEntryTime" sortable="custom" label="入职时间"></el-table-column>
+        <el-table-column fixed="right" label="操作">
+          <template class="teacher-do" slot-scope="scope">
+            <el-button
+              size="mini"
+              type="danger"
+              @click="deleteTeacherById(scope.row.ttId, scope.row.ttExam)"
+              v-if="permission.indexOf('ex:insp:delete') >= 0"
+            >删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <!-- 列表结束 -->
+    </el-dialog>
+    <!-- 监考教师列表结束 -->
   </div>
 </template>
 <script>
 import examApi from '@/api/exam'
+import examTeacherApi from '@/api/examTeacher'
+import teacherApi from '@/api/teacher'
 import roomApi from '@/api/room'
 import paperApi from '@/api/paper'
 export default {
@@ -235,6 +297,8 @@ export default {
     return {
       permission: this.$store.getters.auths,
       dialogFormVisible: false, // 弹出层隐藏
+      dialogAddTeacher: false, // 添加监考教师弹窗
+      dialogTeacherList: false, // 监考教师弹窗
       timeInterval: null, // 学年度时间区间数组
       dialogTitle: '新增教室',
       page: {
@@ -250,8 +314,10 @@ export default {
       },
       roomList: [], // 考场列表
       paperList: [], // 试卷列表
-      exam: {
-      }
+      teacherList: [], // 教师列表
+      exam: {}, // 考试
+      examTeacher: {}, // 监考教师
+      examTeacherList: [], // 监考教师列表
     }
   },
   methods: {
@@ -339,10 +405,7 @@ export default {
       }).then(() => {
         examApi.delete(id).then(res => {
           if (res.code == 200) {
-            this.$message({
-              message: res.msg,
-              type: 'success'
-            })
+            this.$message.success(res.msg)
           } else {
             this.$message.error('删除失败')
           }
@@ -350,6 +413,51 @@ export default {
         })
       })
     },
+    getFreeTeacherList () {
+      // 查询空闲教师列表
+      teacherApi.freeList().then(res => {
+        this.teacherList = res.data
+      })
+    },
+    getTeacherList (examId) {
+      // 查看监考教师
+      examTeacherApi.getList(examId).then(res => {
+        this.examTeacherList = res.data
+        this.dialogTeacherList = true
+      })
+    },
+    toAddTeacher (examId) {
+      // 打开添加监考教师弹窗
+      this.examTeacher.ttExam = examId
+      this.getFreeTeacherList()
+      this.dialogAddTeacher = true
+    },
+    addTeacher () {
+      // 添加监考教师
+      this.$store.commit("SET_LOADING", true)
+      examTeacherApi.save(this.examTeacher).then(res => {
+        this.$message.success(res.msg)
+        this.dialogAddTeacher = false
+        this.getTeacherList(this.examTeacher.ttExam)
+      })
+    },
+    deleteTeacherById (id, examId) {
+      // 根据id删除
+      this.$confirm('确定取消该教师的监考资格吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'error'
+      }).then(() => {
+        examTeacherApi.delete(id).then(res => {
+          if (res.code == 200) {
+            this.$message.success(res.msg)
+          } else {
+            this.$message.error('删除失败')
+          }
+          this.getTeacherList(examId)
+        })
+      })
+    }
   },
   created () {
     this.list()

@@ -74,5 +74,10 @@ export default {
       data: obj
     })
   },
-
+  freeList () {
+    return request({
+      url: `/${group_name}/freeList`,
+      method: 'get'
+    })
+  },
 }
