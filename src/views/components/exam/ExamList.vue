@@ -4,23 +4,23 @@
       <!-- 搜索部分开始 -->
       <el-form :inline="true" :model="page" class="demo-form-inline" size="mini">
         <el-form-item label="考场">
-          <el-input v-model="page.params.examRoom" placeholder="考场" clearable></el-input>
+          <el-input v-model="page.params.examRoom" placeholder="考场" clearable/>
         </el-form-item>
         <el-form-item label="创建人">
-          <el-input v-model="page.params.examDate" placeholder="创建人" clearable></el-input>
+          <el-input v-model="page.params.examDate" placeholder="创建人" clearable/>
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="page.params.examState" filterable placeholder="请选择" clearable>
-            <el-option key="0" label="未开始" value="0"></el-option>
-            <el-option key="1" label="已开始" value="1"></el-option>
-            <el-option key="2" label="已结束" value="2"></el-option>
+            <el-option key="0" label="未开始" value="0"/>
+            <el-option key="1" label="已开始" value="1"/>
+            <el-option key="2" label="已结束" value="2"/>
           </el-select>
         </el-form-item>
         <el-form-item label="考试类型">
           <el-select v-model="page.params.examType" filterable placeholder="考试类型" clearable>
-            <el-option key="0" label="测试" value="0"></el-option>
-            <el-option key="1" label="考试" value="1"></el-option>
-            <el-option key="2" label="补考" value="2"></el-option>
+            <el-option key="0" label="测试" value="0"/>
+            <el-option key="1" label="考试" value="1"/>
+            <el-option key="2" label="补考" value="2"/>
           </el-select>
         </el-form-item>
         <el-form-item label="考试日期">
@@ -32,7 +32,7 @@
               range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
-            ></el-date-picker>
+            />
           </div>
         </el-form-item>
         <el-form-item>
@@ -41,12 +41,12 @@
       </el-form>
       <!-- 搜索部分结束 -->
 
-      <hr />
+      <hr >
       <el-button
+        v-if="permission.indexOf('ex:exam:add') >= 0"
         type="primary"
         size="mini"
         @click="toAdd"
-        v-if="permission.indexOf('ex:exam:add') >= 0"
       >添加</el-button>
     </div>
 
@@ -56,93 +56,93 @@
       border
       stripe
       style="width: 100%"
-      @sort-change="sortHandler"
-      size="mini"
       v-loading="this.$store.getters.loading"
+      size="mini"
+      @sort-change="sortHandler"
     >
-      <el-table-column type="index" width="50"></el-table-column>
-      <el-table-column prop="examDate" sortable="custom" label="考试日期"></el-table-column>
-      <el-table-column prop="room.roomName" sortable="custom" label="考场"></el-table-column>
-      <el-table-column prop="examTime" sortable="custom" label="考试时间/分钟"></el-table-column>
-      <el-table-column prop="paper.paperTitle" sortable="custom" label="所用试卷"></el-table-column>
-      <el-table-column prop="teacher.teacherName" sortable="custom" label="创建人"></el-table-column>
-      <el-table-column prop="examCreateTime" sortable="custom" label="创建时间"></el-table-column>
+      <el-table-column type="index" width="50"/>
+      <el-table-column prop="examDate" sortable="custom" label="考试日期"/>
+      <el-table-column prop="room.roomName" sortable="custom" label="考场"/>
+      <el-table-column prop="examTime" sortable="custom" label="考试时间/分钟"/>
+      <el-table-column prop="paper.paperTitle" sortable="custom" label="所用试卷"/>
+      <el-table-column prop="teacher.teacherName" sortable="custom" label="创建人"/>
+      <el-table-column prop="examCreateTime" sortable="custom" label="创建时间"/>
       <el-table-column sortable="custom" label="考试类型">
         <template slot-scope="scope">
-          <el-tag type="info" v-if="scope.row.examType == 0">平常测试</el-tag>
-          <el-tag type="success" v-if="scope.row.examType == 1">考试</el-tag>
-          <el-tag type="error" v-if="scope.row.examType == 2">补考</el-tag>
+          <el-tag v-if="scope.row.examType == 0" type="info">平常测试</el-tag>
+          <el-tag v-if="scope.row.examType == 1" type="success">考试</el-tag>
+          <el-tag v-if="scope.row.examType == 2" type="error">补考</el-tag>
         </template>
       </el-table-column>
       <el-table-column sortable="custom" label="状态">
         <template slot-scope="scope">
-          <el-tag type="info" v-if="scope.row.examState == 0">未开始</el-tag>
-          <el-tag type="success" v-if="scope.row.examState == 1">已开始</el-tag>
-          <el-tag type="error" v-if="scope.row.examState == 2">已结束</el-tag>
+          <el-tag v-if="scope.row.examState == 0" type="info">未开始</el-tag>
+          <el-tag v-if="scope.row.examState == 1" type="success">已开始</el-tag>
+          <el-tag v-if="scope.row.examState == 2" type="error">已结束</el-tag>
         </template>
       </el-table-column>
       <el-table-column fixed="right" label="操作" width="100px">
-        <template class="paper-do" slot-scope="scope">
+        <template slot-scope="scope" class="paper-do">
           <el-dropdown>
             <el-button type="primary" size="mini">
               操作
-              <i class="el-icon-arrow-down el-icon--right"></i>
+              <i class="el-icon-arrow-down el-icon--right"/>
             </el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>
                 <el-button
+                  v-if="permission.indexOf('ex:exam:update') >= 0"
                   size="mini"
                   type="success"
                   @click="toUpdate(scope.row.examId)"
-                  v-if="permission.indexOf('ex:exam:update') >= 0"
                 >编辑</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
+                  v-if="permission.indexOf('ex:insp:add') >= 0 && scope.row.examState == 0"
                   size="mini"
                   type="primary"
                   @click="toAddTeacher(scope.row.examId)"
-                  v-if="permission.indexOf('ex:insp:add') >= 0 && scope.row.examState == 0"
                 >添加监考老师</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
+                  v-if="permission.indexOf('ex:insp:list') >= 0"
                   size="mini"
                   type="success"
                   @click="getTeacherList(scope.row.examId)"
-                  v-if="permission.indexOf('ex:insp:list') >= 0"
                 >查看监考老师</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
+                  v-if="permission.indexOf('ex:exam:update') >= 0"
                   size="mini"
                   type="primary"
                   @click="toUpdate(scope.row.examId)"
-                  v-if="permission.indexOf('ex:exam:update') >= 0"
                 >添加学生</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
+                  v-if="permission.indexOf('ex:exam:update') >= 0"
                   size="mini"
                   type="success"
                   @click="toUpdate(scope.row.examId)"
-                  v-if="permission.indexOf('ex:exam:update') >= 0"
                 >查看学生</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
+                  v-if="permission.indexOf('ex:exam:update') >= 0"
                   size="mini"
                   type="primary"
                   @click="toUpdate(scope.row.examId)"
-                  v-if="permission.indexOf('ex:exam:update') >= 0"
                 >考试详情</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
+                  v-if="permission.indexOf('ex:exam:delete') >= 0"
                   size="mini"
                   type="danger"
                   @click="deleteById(scope.row.examId)"
-                  v-if="permission.indexOf('ex:exam:delete') >= 0"
                 >删除</el-button>
               </el-dropdown-item>
             </el-dropdown-menu>
@@ -155,22 +155,22 @@
     <!-- 分页组件开始 -->
     <div class="page-div">
       <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
         :current-page="page.currentPage"
         :page-sizes="[10,15,20,30]"
+        @size-change="handleSizeChange"
         :page-size="page.currentCount"
+        @current-change="handleCurrentChange"
         layout="total, sizes, prev, pager, next, jumper"
         :total="page.totalCount"
-      ></el-pagination>
+      />
     </div>
     <!-- 分页组件结束 -->
 
     <!-- 新增 编辑弹窗开始 -->
     <el-dialog
+      v-loading="this.$store.getters.loading"
       :title="dialogTitle"
       :visible.sync="dialogFormVisible"
-      v-loading="this.$store.getters.loading"
     >
       <el-form :model="exam" label-width="80px" size="mini">
         <el-form-item label="考场">
@@ -180,17 +180,17 @@
               :key="room.roomId"
               :label="room.roomName"
               :value="room.roomId"
-            ></el-option>
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="考试日期">
           <el-date-picker
+            v-model="exam.examDate"
             type="datetime"
             placeholder="考试日期"
-            v-model="exam.examDate"
             value-format="yyyy-MM-dd HH:mm:ss"
             style="width: 100%"
-          ></el-date-picker>
+          />
         </el-form-item>
         <el-form-item label="考试时间">
           <el-input v-model="exam.examTime" clearable>
@@ -204,18 +204,18 @@
               :key="paper.paperId"
               :label="paper.paperTitle"
               :value="paper.paperId"
-            ></el-option>
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="考试类型">
           <el-select v-model="exam.examType" filterable placeholder="请选择" clearable>
-            <el-option key="0" label="平常测试" value="0"></el-option>
-            <el-option key="1" label="普通考试" value="1"></el-option>
-            <el-option key="2" label="补考" value="2"></el-option>
+            <el-option key="0" label="平常测试" value="0"/>
+            <el-option key="1" label="普通考试" value="1"/>
+            <el-option key="2" label="补考" value="2"/>
           </el-select>
         </el-form-item>
         <el-form-item label="备注">
-          <el-input type="textarea" v-model="exam.examComment" clearable></el-input>
+          <el-input v-model="exam.examComment" type="textarea" clearable/>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="save">提交</el-button>
@@ -227,9 +227,9 @@
 
     <!-- 添加监考教师开始 -->
     <el-dialog
-      title="添加监考教师"
-      :visible.sync="dialogAddTeacher"
       v-loading="this.$store.getters.loading"
+      :visible.sync="dialogAddTeacher"
+      title="添加监考教师"
     >
       <el-form :model="examTeacher" label-width="80px" size="mini">
         <el-form-item label="监考教师">
@@ -239,7 +239,7 @@
               :key="teacher.teacherId"
               :label="teacher.teacherName"
               :value="teacher.teacherId"
-            ></el-option>
+            />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -251,32 +251,32 @@
     <!-- 添加监考教师结束 -->
 
     <!-- 监考教师列表开始 -->
-    <el-dialog title="监考教师" :visible.sync="dialogTeacherList">
+    <el-dialog :visible.sync="dialogTeacherList" title="监考教师">
       <!-- 列表开始 -->
       <el-table
         :data="examTeacherList"
         border
+        v-loading="this.$store.getters.loading"
         stripe
         style="width: 100%"
         size="mini"
-        v-loading="this.$store.getters.loading"
       >
-        <el-table-column prop="teacher.teacherNumber" sortable="custom" label="工号"></el-table-column>
-        <el-table-column prop="teacher.teacherName" sortable="custom" label="姓名"></el-table-column>
+        <el-table-column prop="teacher.teacherNumber" sortable="custom" label="工号"/>
+        <el-table-column prop="teacher.teacherName" sortable="custom" label="姓名"/>
         <el-table-column sortable="custom" label="性别">
           <template slot-scope="scope">
             <span>{{ scope.row.teacher.teacherSex==1?'男':'女' }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="teacher.teacherAge" sortable="custom" label="年龄"></el-table-column>
-        <el-table-column prop="teacher.teacherEntryTime" sortable="custom" label="入职时间"></el-table-column>
+        <el-table-column prop="teacher.teacherAge" sortable="custom" label="年龄"/>
+        <el-table-column prop="teacher.teacherEntryTime" sortable="custom" label="入职时间"/>
         <el-table-column fixed="right" label="操作">
-          <template class="teacher-do" slot-scope="scope">
+          <template slot-scope="scope" class="teacher-do">
             <el-button
+              v-if="permission.indexOf('ex:insp:delete') >= 0"
               size="mini"
               type="danger"
               @click="deleteTeacherById(scope.row.ttId, scope.row.ttExam)"
-              v-if="permission.indexOf('ex:insp:delete') >= 0"
             >删除</el-button>
           </template>
         </el-table-column>
@@ -293,7 +293,7 @@ import teacherApi from '@/api/teacher'
 import roomApi from '@/api/room'
 import paperApi from '@/api/paper'
 export default {
-  data () {
+  data() {
     return {
       permission: this.$store.getters.auths,
       dialogFormVisible: false, // 弹出层隐藏
@@ -317,24 +317,28 @@ export default {
       teacherList: [], // 教师列表
       exam: {}, // 考试
       examTeacher: {}, // 监考教师
-      examTeacherList: [], // 监考教师列表
+      examTeacherList: [] // 监考教师列表
     }
   },
+  created() {
+    this.list()
+    this.getPaperList()
+  },
   methods: {
-    handleSizeChange (val) {
+    handleSizeChange(val) {
       this.page.currentCount = val
       this.list()
     },
-    handleCurrentChange (val) {
+    handleCurrentChange(val) {
       this.page.currentPage = val
       this.list()
     },
-    sortHandler (column) { // 排序查询
+    sortHandler(column) { // 排序查询
       this.page.sortName = column.prop
       this.page.sortOrder = column.order
       this.list()
     },
-    save () { // 保存或修改
+    save() { // 保存或修改
       if (this.exam.examId == '') {
         examApi.save(this.exam).then(res => {
           if (res.code == 200) {
@@ -353,9 +357,9 @@ export default {
         })
       }
     },
-    list () { // 分页查询
+    list() { // 分页查询
       this.exam.examId = ''
-      this.$store.commit("SET_LOADING", true)
+      this.$store.commit('SET_LOADING', true)
       if (this.timeInterval != null) {
         this.page.params.startTime = this.timeInterval[0]
         this.page.params.endTime = this.timeInterval[1]
@@ -369,19 +373,19 @@ export default {
         }
       })
     },
-    getRoomList (id) {
+    getRoomList(id) {
       // 查询空闲教室
       roomApi.free(id).then(res => {
         this.roomList = res.data
       })
     },
-    getPaperList () {
+    getPaperList() {
       // 获取所有的试卷
       paperApi.all().then(res => {
         this.paperList = res.data
       })
     },
-    toUpdate (id) { // 打开弹窗，进行修改
+    toUpdate(id) { // 打开弹窗，进行修改
       // 根据id查询
       examApi.get(id).then(res => {
         if (res.code == 200) {
@@ -392,12 +396,12 @@ export default {
         }
       })
     },
-    toAdd () {
+    toAdd() {
       this.getRoomList(null)
       this.dialogTitle = '创建考试'
       this.dialogFormVisible = true
     },
-    deleteById (id) {
+    deleteById(id) {
       this.$confirm('确定删除这条记录?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -413,35 +417,35 @@ export default {
         })
       })
     },
-    getFreeTeacherList () {
+    getFreeTeacherList() {
       // 查询空闲教师列表
       teacherApi.freeList().then(res => {
         this.teacherList = res.data
       })
     },
-    getTeacherList (examId) {
+    getTeacherList(examId) {
       // 查看监考教师
       examTeacherApi.getList(examId).then(res => {
         this.examTeacherList = res.data
         this.dialogTeacherList = true
       })
     },
-    toAddTeacher (examId) {
+    toAddTeacher(examId) {
       // 打开添加监考教师弹窗
       this.examTeacher.ttExam = examId
       this.getFreeTeacherList()
       this.dialogAddTeacher = true
     },
-    addTeacher () {
+    addTeacher() {
       // 添加监考教师
-      this.$store.commit("SET_LOADING", true)
+      this.$store.commit('SET_LOADING', true)
       examTeacherApi.save(this.examTeacher).then(res => {
         this.$message.success(res.msg)
         this.dialogAddTeacher = false
         this.getTeacherList(this.examTeacher.ttExam)
       })
     },
-    deleteTeacherById (id, examId) {
+    deleteTeacherById(id, examId) {
       // 根据id删除
       this.$confirm('确定取消该教师的监考资格吗?', '提示', {
         confirmButtonText: '确定',
@@ -449,7 +453,7 @@ export default {
         type: 'error'
       }).then(() => {
         examTeacherApi.delete(id).then(res => {
-          if (res.code == 200) {
+          if (res.code === 200) {
             this.$message.success(res.msg)
           } else {
             this.$message.error('删除失败')
@@ -457,11 +461,11 @@ export default {
           this.getTeacherList(examId)
         })
       })
+    },
+    getStudentPage(examId) {
+      // 分页查询不在本场考试中的学生
+
     }
-  },
-  created () {
-    this.list()
-    this.getPaperList()
   }
 }
 </script>
