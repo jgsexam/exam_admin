@@ -294,22 +294,21 @@
     >
       <div class="table-header">
         <!-- 搜索部分开始 -->
-        <!-- <el-form :inline="true" :model="page" class="demo-form-inline" size="mini">
+        <el-form :inline="true" :model="studentPage" class="demo-form-inline" size="mini">
           <el-form-item label="姓名">
-            <el-input v-model="page.params.stuName" placeholder="学生名" clearable></el-input>
+            <el-input v-model="studentPage.params.stuName" placeholder="学生名" clearable></el-input>
           </el-form-item>
           <el-form-item label="学号">
-            <el-input v-model="page.params.stuNumber" placeholder="学号" clearable></el-input>
+            <el-input v-model="studentPage.params.stuNumber" placeholder="学号" clearable></el-input>
           </el-form-item>
           <el-form-item label="性别">
-            <el-select clearable v-model="page.params.stuSex" filterable placeholder="请选择">
+            <el-select clearable v-model="studentPage.params.stuSex" filterable placeholder="请选择">
               <el-option key="1" label="男" value="1"></el-option>
               <el-option key="2" label="女" value="2"></el-option>
             </el-select>
           </el-form-item>
-
           <el-form-item label="专业">
-            <el-select clearable v-model="page.params.majorId" filterable placeholder="请选择">
+            <el-select clearable v-model="studentPage.params.majorId" filterable placeholder="请选择">
               <el-option
                 v-for="major in majorList"
                 :key="major.dictId"
@@ -318,9 +317,8 @@
               ></el-option>
             </el-select>
           </el-form-item>
-
           <el-form-item label="学院">
-            <el-select clearable v-model="page.params.collegeId" filterable placeholder="请选择">
+            <el-select clearable v-model="studentPage.params.collegeId" filterable placeholder="请选择">
               <el-option
                 v-for="college in collegeList"
                 :key="college.dictId"
@@ -332,7 +330,7 @@
           <el-form-item label="入学时间区间">
             <div class="block">
               <el-date-picker
-                v-model="admissionTime"
+                v-model="timeInterval"
                 type="daterange"
                 value-format="yyyy-MM-dd"
                 range-separator="至"
@@ -342,9 +340,9 @@
             </div>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="search">查询</el-button>
+            <el-button type="primary" @click="getStudentPage">查询</el-button>
           </el-form-item>
-        </el-form>-->
+        </el-form>
         <!-- 搜索部分结束 -->
 
         <hr />
@@ -353,7 +351,7 @@
           size="mini"
           @click="toAdd"
           v-if="permission.indexOf('user:student:add') >= 0"
-        >添加</el-button> -->
+        >添加</el-button>-->
       </div>
 
       <!-- 列表开始 -->
@@ -412,6 +410,7 @@
 </template>
 <script>
 import examApi from '@/api/exam'
+import dictApi from '@/api/dict'
 import examTeacherApi from '@/api/examTeacher'
 import examStudentApi from '@/api/examStudent'
 import teacherApi from '@/api/teacher'
@@ -455,12 +454,17 @@ export default {
           examId: '' // 考试的id，必传
         },
         list: []
-      }
+      },
+      collegeList: [], // 学院集合
+      majorList: [], // 专业集合
+      admissionTime: null, // 入学时间区间(数组)
     }
   },
   created () {
     this.list()
     this.getPaperList()
+    this.getMajor()
+    this.getCollege()
   },
   methods: {
     handleSizeChange (val) {
@@ -615,6 +619,13 @@ export default {
     },
     getStudentPage () {
       // 分页查询不在本场考试中的学生
+      if (this.timeInterval != null) {
+        this.studentPage.params.startTime = this.timeInterval[0];
+        this.studentPage.params.endTime = this.timeInterval[1];
+      } else {
+        this.studentPage.params.startTime = "";
+        this.studentPage.params.endTime = "";
+      }
       examStudentApi.list(this.studentPage).then(res => {
         this.studentPage = res.data
         this.dialogAddStudent = true
@@ -624,6 +635,21 @@ export default {
       // 分页插叙不在本场考试中的学生，并且打开弹窗
       this.studentPage.params.examId = examId
       this.getStudentPage()
+    },
+    getCollege () {
+      // 查询学院
+      dictApi.all({ dictType: "college" }).then(res => {
+        this.collegeList = res.data;
+      });
+    },
+    getMajor () {
+      // 查询学院
+      dictApi.all({ dictType: "major" }).then(res => {
+        this.majorList = res.data;
+      });
+    },
+    addToExam () {
+      // 将学生加入进考试
     }
   }
 }
