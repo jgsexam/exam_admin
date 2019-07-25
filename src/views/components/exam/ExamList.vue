@@ -115,7 +115,7 @@
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
-                  v-if="permission.indexOf('ex:exam:update') >= 0"
+                  v-if="permission.indexOf('ex:exam:stu:add') >= 0"
                   size="mini"
                   type="primary"
                   @click="toAddStudent(scope.row.examId)"
@@ -123,10 +123,10 @@
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
-                  v-if="permission.indexOf('ex:exam:update') >= 0"
+                  v-if="permission.indexOf('ex:exam:stu:list') >= 0"
                   size="mini"
                   type="success"
-                  @click="toUpdate(scope.row.examId)"
+                  @click="getStudentList(scope.row.examId)"
                 >查看学生</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
@@ -318,7 +318,12 @@
             </el-select>
           </el-form-item>
           <el-form-item label="学院">
-            <el-select clearable v-model="studentPage.params.collegeId" filterable placeholder="请选择">
+            <el-select
+              clearable
+              v-model="studentPage.params.collegeId"
+              filterable
+              placeholder="请选择"
+            >
               <el-option
                 v-for="college in collegeList"
                 :key="college.dictId"
@@ -346,12 +351,12 @@
         <!-- 搜索部分结束 -->
 
         <hr />
-        <!-- <el-button
+        <el-button
           type="primary"
           size="mini"
-          @click="toAdd"
-          v-if="permission.indexOf('user:student:add') >= 0"
-        >添加</el-button>-->
+          @click="addStudentBatch"
+          v-if="permission.indexOf('ex:exam:stu:add') >= 0"
+        >添加</el-button>
       </div>
 
       <!-- 列表开始 -->
@@ -381,10 +386,10 @@
         <el-table-column fixed="right" label="操作">
           <template slot-scope="scope">
             <el-button
-              v-if="permission.indexOf('ex:insp:delete') >= 0"
+              v-if="permission.indexOf('ex:exam:stu:add') >= 0"
               size="mini"
               type="primary"
-              @click="addToExam(scope.row.student.stuId)"
+              @click="addStudent(scope.row.student.stuId)"
             >加入</el-button>
           </template>
         </el-table-column>
@@ -406,6 +411,43 @@
       <!-- 分页组件结束 -->
     </el-dialog>
     <!-- 添加学生结束 -->
+
+    <!-- 考生列表开始 -->
+    <el-dialog :visible.sync="dialogStudentList" title="考生" width="85%">
+      <!-- 列表开始 -->
+      <el-table
+        :data="examStudentList"
+        border
+        v-loading="this.$store.getters.loading"
+        stripe
+        style="width: 100%"
+        size="mini"
+      >
+        <el-table-column prop="student.stuNumber" sortable="custom" label="学号"></el-table-column>
+        <el-table-column prop="student.stuName" sortable="custom" label="姓名"></el-table-column>
+        <el-table-column sortable="custom" label="性别">
+          <template slot-scope="scope">
+            <span>{{ scope.row.student.stuSex==1?'男':'女' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="student.stuAge" sortable="custom" label="年龄"></el-table-column>
+        <el-table-column prop="student.major.dictName" sortable="custom" label="专业"></el-table-column>
+        <el-table-column prop="student.stuEntranceTime" sortable="custom" label="入学时间"></el-table-column>
+        <el-table-column prop="student.college.dictName" sortable="custom" label="学院"></el-table-column>
+        <el-table-column fixed="right" label="操作">
+          <template slot-scope="scope" class="teacher-do">
+            <el-button
+              v-if="permission.indexOf('ex:exam:stu:delete') >= 0"
+              size="mini"
+              type="danger"
+              @click="deleteStudentById(scope.row.stId, scope.row.stExam)"
+            >删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <!-- 列表结束 -->
+    </el-dialog>
+    <!-- 考生列表结束 -->
   </div>
 </template>
 <script>
@@ -424,6 +466,7 @@ export default {
       dialogAddTeacher: false, // 添加监考教师弹窗
       dialogAddStudent: false, // 添加考试学生弹窗
       dialogTeacherList: false, // 监考教师弹窗
+      dialogStudentList: false, // 考生弹窗
       timeInterval: null, // 学年度时间区间数组
       dialogTitle: '新增教室',
       page: {
@@ -458,6 +501,9 @@ export default {
       collegeList: [], // 学院集合
       majorList: [], // 专业集合
       admissionTime: null, // 入学时间区间(数组)
+      selectIds: [], // 被选中的学生id
+      examStudent: {}, // 考生
+      examStudentList: [], // 考生列表
     }
   },
   created () {
@@ -585,6 +631,13 @@ export default {
         this.dialogTeacherList = true
       })
     },
+    getStudentList (examId) {
+      // 查看考生
+      examStudentApi.getList(examId).then(res => {
+        this.examStudentList = res.data
+        this.dialogStudentList = true
+      })
+    },
     toAddTeacher (examId) {
       // 打开添加监考教师弹窗
       this.examTeacher.ttExam = examId
@@ -614,6 +667,23 @@ export default {
             this.$message.error('删除失败')
           }
           this.getTeacherList(examId)
+        })
+      })
+    },
+    deleteStudentById (id, examId) {
+      // 根据id删除
+      this.$confirm('确定取消该考生的考试资格吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'error'
+      }).then(() => {
+        examStudentApi.delete(id).then(res => {
+          if (res.code === 200) {
+            this.$message.success(res.msg)
+          } else {
+            this.$message.error('删除失败')
+          }
+          this.getStudentList(examId)
         })
       })
     },
@@ -648,8 +718,27 @@ export default {
         this.majorList = res.data;
       });
     },
-    addToExam () {
+    addStudent (stuId) {
       // 将学生加入进考试
+      // 构造数据
+      this.examStudent.stStu = stuId
+      this.examStudent.stExam = this.studentPage.params.examId
+      examStudentApi.saveOne(this.examStudent).then(res => {
+        this.$message.success(res.msg)
+        this.getStudentPage(this.examStudent.stExam)
+      })
+    },
+    addStudentBatch () {
+      // 批量添加学生
+      examStudentApi.saveList(this.selectIds, this.studentPage.params.examId).then(res => {
+        this.$message.success(res.msg)
+        this.getStudentPage(this.examStudent.stExam)
+      })
+    },
+    changeSelect (list) {
+      // 多选框选择状态改变
+      let ids = list.map(x => { return x.student.stuId })
+      this.selectIds = ids
     }
   }
 }
