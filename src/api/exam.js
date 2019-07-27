@@ -1,44 +1,43 @@
 import request from '@/utils/request'
 var group_name = 'exam'
 export default {
-  save(room) {
+  save (exam) {
     return request({
       url: `/${group_name}/create`,
       method: 'post',
-      data: room
+      data: exam
     })
   },
-  list(page) {
+  list (page) {
     return request({
       url: `/${group_name}/list`,
       method: 'post',
       data: page
     })
   },
-  delete(roomId) {
+  delete (examId) {
     return request({
-      url: `/${group_name}/delete/${roomId}`,
+      url: `/${group_name}/delete/${examId}`,
       method: 'delete'
     })
   },
-  get(roomId) {
+  get (examId) {
     return request({
-      url: `/${group_name}/get/${roomId}`,
+      url: `/${group_name}/get/${examId}`,
       method: 'get'
     })
   },
-  update(room) {
+  update (exam) {
     return request({
       url: `/${group_name}/update`,
       method: 'put',
-      data: room
+      data: exam
     })
   },
-  free(room) {
+  info (examId) {
     return request({
-      url: `/${group_name}/free`,
-      method: 'put',
-      data: room
+      url: `/${group_name}/info/${examId}`,
+      method: 'get'
     })
   }
 }
