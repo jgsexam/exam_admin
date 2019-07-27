@@ -65,7 +65,7 @@
       </el-form>
       <!-- 搜索部分结束 -->
 
-      <hr>
+      <el-divider></el-divider>
       <el-button
         type="primary"
         size="mini"

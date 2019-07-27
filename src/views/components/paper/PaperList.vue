@@ -99,7 +99,7 @@
       </el-form>
       <!-- 搜索部分结束 -->
 
-      <hr>
+      <el-divider></el-divider>
       <el-button
         type="primary"
         size="mini"
@@ -406,7 +406,7 @@
             :key="config.configType"
           >{{ config.type.typeName + config.configQuestionNum + '道，总分为' + config.configScore + '分；' }}</span>
         </div>
-        <hr>
+        <el-divider></el-divider>
         <el-button type="primary" size="mini" @click="addToPaper('')">批量添加</el-button>
         <!-- 搜索部分结束 -->
       </div>

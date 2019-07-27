@@ -29,7 +29,7 @@
         </el-form-item>
       </el-form>
       <!-- 搜索部分结束 -->
-      <hr>
+      <el-divider></el-divider>
     </div>
 
     <!-- 列表开始 -->

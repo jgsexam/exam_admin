@@ -16,7 +16,7 @@
           <el-button type="primary" size="mini" @click="list">查询</el-button>
         </el-form-item>
       </el-form>
-      <hr>
+      <el-divider></el-divider>
       <el-button
         type="primary"
         size="mini"

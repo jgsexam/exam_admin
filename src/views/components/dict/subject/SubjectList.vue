@@ -9,7 +9,7 @@
           <el-button type="primary" @click="search" size="mini">查询</el-button>
         </el-form-item>
       </el-form>
-      <hr>
+      <el-divider></el-divider>
       <el-button type="primary" size="mini" @click="toAdd" v-if="permission.indexOf('sys:subject:add') >= 0">添加</el-button>
     </div>
     <el-table

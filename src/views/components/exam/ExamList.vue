@@ -41,7 +41,7 @@
       </el-form>
       <!-- 搜索部分结束 -->
 
-      <hr />
+      <el-divider></el-divider>
       <el-button
         v-if="permission.indexOf('ex:exam:add') >= 0"
         type="primary"
@@ -131,11 +131,19 @@
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
-                  v-if="permission.indexOf('ex:exam:update') >= 0"
+                  v-if="permission.indexOf('ex:exam:info') >= 0"
                   size="mini"
                   type="primary"
-                  @click="toUpdate(scope.row.examId)"
+                  @click="getInfo(scope.row.examId)"
                 >考试详情</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
+                  v-if="permission.indexOf('ex:exam:paper:create') >= 0"
+                  size="mini"
+                  type="primary"
+                  @click="createPaper(scope.row.examId)"
+                >生成试卷</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
@@ -448,6 +456,41 @@
       <!-- 列表结束 -->
     </el-dialog>
     <!-- 考生列表结束 -->
+
+    <!-- 考试信息开始 -->
+    <el-dialog :visible.sync="dialogExamInfo" title="详情信息">
+      <p>所用试卷：{{ examInfo.paper.paperTitle }}</p>
+      <el-divider></el-divider>
+      <p>考试时间：{{ examInfo.examDate }}</p>
+      <el-divider></el-divider>
+      <p>考试时长：{{ examInfo.examTime }} 分钟</p>
+      <el-divider></el-divider>
+      <p>
+        考试类型：
+        <span v-if="examInfo.examType == 0">平常测试</span>
+        <span v-if="examInfo.examType == 1">考试</span>
+        <span v-if="examInfo.examType == 2">补考</span>
+      </p>
+      <el-divider></el-divider>
+      <p>考场：{{ examInfo.room.roomName }}</p>
+      <el-divider></el-divider>
+      <p>监考教师：{{ examInfo.teacherList.length }} 名</p>
+      <p>
+        <span v-for="teacher in examInfo.teacherList" :key="teacher.ttId">
+          <el-tag type="success">{{ teacher.teacher.teacherName }}</el-tag>&nbsp;
+        </span>
+      </p>
+      <el-divider></el-divider>
+      <p>考生：{{ examInfo.studentList.length }} 名</p>
+      <p>
+        <span v-for="student in examInfo.studentList" :key="student.stId">
+          <el-tag type="success">{{ student.student.stuName }}</el-tag>&nbsp;
+        </span>
+      </p>
+      <el-divider></el-divider>
+      <p>备注：{{ examInfo.examComment }}</p>
+    </el-dialog>
+    <!-- 考试信息结束 -->
   </div>
 </template>
 <script>
@@ -466,6 +509,7 @@ export default {
       dialogAddTeacher: false, // 添加监考教师弹窗
       dialogAddStudent: false, // 添加考试学生弹窗
       dialogTeacherList: false, // 监考教师弹窗
+      dialogExamInfo: false, // 考试详情弹窗
       dialogStudentList: false, // 考生弹窗
       timeInterval: null, // 学年度时间区间数组
       dialogTitle: '新增教室',
@@ -504,6 +548,12 @@ export default {
       selectIds: [], // 被选中的学生id
       examStudent: {}, // 考生
       examStudentList: [], // 考生列表
+      examInfo: { // 考试详情
+        paper: {},
+        room: {},
+        studentList: [],
+        teacherList: []
+      }
     }
   },
   created () {
@@ -739,6 +789,24 @@ export default {
       // 多选框选择状态改变
       let ids = list.map(x => { return x.student.stuId })
       this.selectIds = ids
+    },
+    getInfo (examId) {
+      // 获取考试详情
+      this.$store.commit('SET_LOADING', true)
+      examApi.info(examId).then(res => {
+        this.examInfo = res.data
+        this.dialogExamInfo = true
+      })
+    },
+    createPaper(examId) {
+        // 根据id删除
+      this.$confirm('该功能会为每一位学生生成不同的试卷，已生成试卷的学生不会重复生成，生成过程比较漫长，是否等待?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'primary'
+      }).then(() => {
+        console.log('哈哈哈')
+      })
     }
   }
 }
