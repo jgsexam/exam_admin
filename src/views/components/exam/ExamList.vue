@@ -142,7 +142,7 @@
                   v-if="permission.indexOf('ex:exam:paper:create') >= 0"
                   size="mini"
                   type="primary"
-                  @click="createPaper(scope.row.examId)"
+                  @click="createPaper(scope.row)"
                 >生成试卷</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
@@ -491,6 +491,68 @@
       <p>备注：{{ examInfo.examComment }}</p>
     </el-dialog>
     <!-- 考试信息结束 -->
+
+    <!-- 智能组卷弹窗 -->
+    <el-dialog title="智能组卷" :visible.sync="dialogGa">
+      <el-form :model="gaPaper" size="mini" v-loading="this.$store.getters.loading">
+        <el-form-item :inline="true" v-for="(config, index) in gaPaper.configList" :key="index">
+          <div class="input-div">
+            <h2 style="text-align: center;">题型 {{ index+1 }}</h2>
+            <el-form-item label="难度系数" label-width="80px">
+              <el-rate
+                v-model="config.difficulty"
+                show-score
+                text-color="#ff9900"
+                score-template="{value}"
+              ></el-rate>
+            </el-form-item>
+            <el-form-item label="分值" label-width="80px">
+              <el-input v-model="config.totalScore" clearable placeholder="请输入分值"></el-input>
+            </el-form-item>
+            <el-form-item label="题量" label-width="80px">
+              <el-input v-model="config.questionNum" clearable placeholder="请输入题目数"></el-input>
+            </el-form-item>
+            <el-form-item label="知识点" label-width="80px">
+              <el-select
+                v-model="config.knowledgeIds"
+                filterable
+                placeholder="请选择"
+                clearable
+                multiple
+                @change="getGaType"
+              >
+                <el-option
+                  v-for="know in knowList"
+                  :key="know.knowId"
+                  :label="know.knowName"
+                  :value="know.knowId"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="题型" label-width="80px">
+              <el-select v-model="config.typeId" filterable placeholder="请选择">
+                <el-option
+                  v-for="type in typeList"
+                  :key="type.typeId"
+                  :label="type.typeName"
+                  :value="type.typeId"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <div class="delete-div">
+              <el-button @click.prevent="removeConfig(config)" type="danger">删除</el-button>
+            </div>
+          </div>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button type="primary" @click="gaSubmit">提交</el-button>
+          <el-button @click="addConfig">添题型题</el-button>
+          <el-button @click="dialogGa=false">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+    <!-- 智能组卷弹窗结束 -->
   </div>
 </template>
 <script>
@@ -501,6 +563,8 @@ import examStudentApi from '@/api/examStudent'
 import teacherApi from '@/api/teacher'
 import roomApi from '@/api/room'
 import paperApi from '@/api/paper'
+import typeApi from "@/api/type"
+import knowledgeApi from "@/api/knowledge"
 export default {
   data () {
     return {
@@ -512,6 +576,7 @@ export default {
       dialogExamInfo: false, // 考试详情弹窗
       dialogStudentList: false, // 考生弹窗
       timeInterval: null, // 学年度时间区间数组
+      dialogGa: false, // 智能组卷弹窗
       dialogTitle: '新增教室',
       page: {
         currentPage: 1,
@@ -553,7 +618,23 @@ export default {
         room: {},
         studentList: [],
         teacherList: []
-      }
+      },
+      gaPaper: { // 智能组卷
+        paperId: '', // 试卷id
+        configList: [ // 配置列表
+          {
+            totalScore: 0, // 总分
+            questionNum: 0, // 题目数
+            difficulty: 1, // 难度
+            typeId: '', // 题型
+            knowledgeIds: [ // 知识点列表
+
+            ]
+          }
+        ]
+      },
+      knowList: [], // 知识点列表
+      typeList: [], // 题型列表
     }
   },
   created () {
@@ -561,6 +642,7 @@ export default {
     this.getPaperList()
     this.getMajor()
     this.getCollege()
+    this.getType('')
   },
   methods: {
     handleSizeChange (val) {
@@ -798,14 +880,76 @@ export default {
         this.dialogExamInfo = true
       })
     },
-    createPaper(examId) {
-        // 根据id删除
+    createPaper (exam) {
+      // 根据id删除
       this.$confirm('该功能会为每一位学生生成不同的试卷，已生成试卷的学生不会重复生成，生成过程比较漫长，是否等待?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'primary'
       }).then(() => {
-        console.log('哈哈哈')
+        // 打开智能组卷弹窗
+        this.gaPaper.paperId = exam.paper.paperId
+        this.getKnowledge(exam.paper.paperBank)
+        this.dialogGa = true
+      })
+    },
+    getGaType (ids) {
+      // 获取到选中的知识点，去查询题型
+      typeApi.allByKnowIds(ids).then(res => {
+        this.typeList = res.data
+      })
+    },
+    getKnowledge (bankId) {
+      // 查询所有知识点
+      knowledgeApi.allByBank(bankId).then(res => {
+        this.knowList = res.data
+      })
+    },
+    getType (knowId) {
+      // 查询所有题型
+      if (knowId == '') {
+        typeApi.all().then(res => {
+          this.typeList = res.data
+        })
+      } else {
+        typeApi.allByKnow(knowId).then(res => {
+          this.typeList = res.data
+        })
+      }
+    },
+    removeConfig (item) {
+      // 删除选项
+      var index = this.gaPaper.configList.indexOf(item)
+      if (index !== -1) {
+        this.gaPaper.configList.splice(index, 1)
+      }
+    },
+    addConfig () {
+      // 添加选项
+      this.gaPaper.configList.push({
+        "totalScore": 0,
+        "questionNum": 0,
+        "difficulty": 1,
+        "typeId": "",
+        "knowledgeIds": [
+        ]
+      });
+    },
+    gaSubmit () {
+      // 提交智能组卷
+      this.$confirm("智能组卷提交后不可修改，确定提交?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "success"
+      }).then(() => {
+        console.log(this,gaPaper)
+        /* paperApi.submitPaperGa(this.gaPaper).then(res => {
+          if (res.code == 200) {
+            this.$message.success(res.msg)
+            this.dialogGa = false
+            this.list()
+          }
+        }) */
       })
     }
   }
