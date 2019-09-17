@@ -20,7 +20,29 @@ export const constantRouterMap = [
       hidden: true
     }]
   },
-
+  {
+    path: '/user',
+    component: Layout,
+    redirect: '/user/teacher',
+    name: 'user',
+    meta: { title: '用户管理', icon: 'icon-yonghu' },
+    children: [
+      {
+        path: 'teacher',
+        name: 'teacher',
+        component: () => import('@/views/components/user/teacher/TeacherList'),
+        meta: { title: '教师列表', icon: 'icon-xuexiao_jiaoshi' },
+        auth: 'user:teacher:list'
+      },
+      {
+        path: 'student',
+        name: 'student',
+        component: () => import('@/views/components/user/student/StudentList'),
+        meta: { title: '学生列表', icon: 'icon-nanxuesheng' },
+        auth: 'user:student:list'
+      }
+    ]
+  },
   {
     path: '/bank',
     component: Layout,
@@ -87,31 +109,6 @@ export const constantRouterMap = [
       }
     ]
   },
-
-  {
-    path: '/user',
-    component: Layout,
-    redirect: '/user/teacher',
-    name: 'user',
-    meta: { title: '用户管理', icon: 'icon-yonghu' },
-    children: [
-      {
-        path: 'teacher',
-        name: 'teacher',
-        component: () => import('@/views/components/user/teacher/TeacherList'),
-        meta: { title: '教师列表', icon: 'icon-xuexiao_jiaoshi' },
-        auth: 'user:teacher:list'
-      },
-      {
-        path: 'student',
-        name: 'student',
-        component: () => import('@/views/components/user/student/StudentList'),
-        meta: { title: '学生列表', icon: 'icon-nanxuesheng' },
-        auth: 'user:student:list'
-      }
-    ]
-  },
-
   {
     path: '/paper',
     component: Layout,
@@ -162,7 +159,7 @@ export const constantRouterMap = [
         component: () => import('@/views/components/exam/RoomList'),
         meta: { title: '考场列表', icon: 'icon-shijuan' },
         auth: 'ex:room:list'
-      },
+      }
     ]
   },
   {

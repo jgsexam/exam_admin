@@ -1,7 +1,8 @@
 <template>
   <div class="login-container">
     <el-form :model="teacher" class="login-form" auto-complete="on" label-position="left">
-      <h3 class="title">智能组卷系统</h3>
+      <!-- <h3 class="title">智能组卷系统</h3> -->
+      <h3 class="title">基于SpringBoot+Vue的智能组卷系统</h3>
       <el-form-item>
         <span class="svg-container">
           <svg-icon icon-class="user"/>
@@ -37,14 +38,14 @@
         >登录</el-button>
       </el-form-item>
     </el-form>
-    <div class="bottom">
+    <!-- <div class="bottom">
       <p>技术支持：软件创新实验室</p>
       <p>指导老师：李金忠 QQ:23408545</p>
       <p>
         版权所有 ©
         <a href="http://www.jgsu.edu.cn/">井冈山大学</a> All rights reserved.
       </p>
-    </div>
+    </div> -->
 
     <!-- 飞来飞去的粒子特效，兼容性有问题 -->
     <!-- <vue-particles
