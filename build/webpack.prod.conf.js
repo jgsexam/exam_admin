@@ -118,16 +118,16 @@ const webpackConfig = merge(baseWebpackConfig, {
     },
     runtimeChunk: 'single',
     minimizer: [
-      new UglifyJsPlugin({
-        uglifyOptions: {
-          mangle: {
-            safari10: true
-          }
-        },
-        sourceMap: config.build.productionSourceMap,
-        cache: true,
-        parallel: true
-      }),
+      // new UglifyJsPlugin({
+      //   uglifyOptions: {
+      //     mangle: {
+      //       safari10: true
+      //     }
+      //   },
+      //   sourceMap: config.build.productionSourceMap,
+      //   cache: true,
+      //   parallel: true
+      // }),
       // Compress extracted CSS. We are using this plugin so that possible
       // duplicated CSS from different components can be deduped.
       new OptimizeCSSAssetsPlugin()
