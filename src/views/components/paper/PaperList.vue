@@ -535,16 +535,16 @@
   </div>
 </template>
 <script>
-import dictApi from "@/api/dict"
-import paperApi from "@/api/paper"
-import configApi from "@/api/paperConfig"
-import bankApi from "@/api/bank"
-import typeApi from "@/api/type"
-import knowledgeApi from "@/api/knowledge"
-import questionApi from "@/api/question"
+import dictApi from "@/api/dict";
+import paperApi from "@/api/paper";
+import configApi from "@/api/paperConfig";
+import bankApi from "@/api/bank";
+import typeApi from "@/api/type";
+import knowledgeApi from "@/api/knowledge";
+import questionApi from "@/api/question";
 
 export default {
-  data () {
+  data() {
     return {
       permission: this.$store.getters.auths,
       timeInterval: null, // 学年度时间区间数组
@@ -553,7 +553,8 @@ export default {
       dialogTypeNum: false, // 题型比例弹窗
       dialogGa: false, // 智能组卷弹窗
       dialogTitle: "创建试卷", // 弹出层标题
-      page: { // 试卷分页对象
+      page: {
+        // 试卷分页对象
         currentPage: 1,
         currentCount: 10,
         totalCount: null,
@@ -574,7 +575,8 @@ export default {
         },
         list: []
       },
-      testPage: { // 组卷分页对象
+      testPage: {
+        // 组卷分页对象
         currentPage: 1,
         currentCount: 10,
         totalCount: null,
@@ -604,130 +606,135 @@ export default {
       },
       knowList: [], // 知识点列表
       typeList: [], // 题型列表
-      config: { // 组卷对象
-        configPaper: '', // 所属试卷
+      config: {
+        // 组卷对象
+        configPaper: "", // 所属试卷
         configQuestionNum: 0, // 题目量
         configScore: 0, // 总分
-        configType: '', // 题型id
-        configKnow: '', // 知识点id
-        questionList: [ // 配置题目列表
+        configType: "", // 题型id
+        configKnow: "", // 知识点id
+        questionList: [
+          // 配置题目列表
           {
-            questionConfig: '', // 配置id
-            questionId: '' // 题目id
+            questionConfig: "", // 配置id
+            questionId: "" // 题目id
           }
         ]
       },
-      questionNumConfig: [ // 显示题目数量
+      questionNumConfig: [
+        // 显示题目数量
       ],
-      gaPaper: { // 智能组卷
-        paperId: '', // 试卷id
-        configList: [ // 配置列表
+      gaPaper: {
+        // 智能组卷
+        paperId: "", // 试卷id
+        configList: [
+          // 配置列表
           {
             totalScore: 0, // 总分
             questionNum: 0, // 题目数
             difficulty: 1, // 难度
-            typeId: '', // 题型
-            knowledgeIds: [ // 知识点列表
-
+            typeId: "", // 题型
+            knowledgeIds: [
+              // 知识点列表
             ]
           }
         ]
       },
-      typeNum: { // 试卷题型数
-        columns: ['typeName', 'configQuestionNum'],
-        rows: [
-        ]
+      typeNum: {
+        // 试卷题型数
+        columns: ["typeName", "configQuestionNum"],
+        rows: []
       },
       typeNumSetting: {
         labelMap: {
-          'typeName': '题型',
-          'configQuestionNum': '题量'
-        },
-      },
+          typeName: "题型",
+          configQuestionNum: "题量"
+        }
+      }
     };
   },
   methods: {
-    handleSizeChange (val) {
+    handleSizeChange(val) {
       this.page.currentCount = val;
       this.list();
     },
-    handleCurrentChange (val) {
+    handleCurrentChange(val) {
       this.page.currentPage = val;
       this.list();
     },
-    changeTestSize (val) {
+    changeTestSize(val) {
       this.page.currentCount = val;
       this.search();
     },
-    changeTestCurrent (val) {
+    changeTestCurrent(val) {
       this.page.currentPage = val;
       this.search();
     },
-    sortHandler (column) {
+    sortHandler(column) {
       // 排序查询
       this.page.sortName = column.prop;
       this.page.sortOrder = column.order;
       this.list();
     },
-    sortQuestion (column) {
+    sortQuestion(column) {
       // 排序查询
       console.log(column);
       this.testPage.sortName = column.prop;
       this.testPage.sortOrder = column.order;
       this.searchQuestion();
     },
-    save () {
+    save() {
       // 保存或修改
-      if (this.paper.paperId == '') {
+      if (this.paper.paperId == "") {
         paperApi.save(this.paper).then(res => {
           if (res.code == 200) {
-            this.$message.success(res.msg)
-            this.dialogFormVisible = false
-            this.list()
+            this.$message.success(res.msg);
+            this.dialogFormVisible = false;
+            this.list();
           }
-        })
+        });
       } else {
         paperApi.update(this.paper).then(res => {
           if (res.code == 200) {
-            this.$message.success(res.msg)
-            this.dialogFormVisible = false
-            this.list()
+            this.$message.success(res.msg);
+            this.dialogFormVisible = false;
+            this.list();
           }
-        })
+        });
       }
     },
-    list () {
+    list() {
       // 分页查询
       if (this.timeInterval != null) {
-        this.page.params.startTime = this.timeInterval[0]
-        this.page.params.endTime = this.timeInterval[1]
+        this.page.params.startTime = this.timeInterval[0];
+        this.page.params.endTime = this.timeInterval[1];
       } else {
-        this.page.params.startTime = ''
-        this.page.params.endTime = ''
+        this.page.params.startTime = "";
+        this.page.params.endTime = "";
       }
-      this.$store.commit("SET_LOADING", true)
+      this.$store.commit("SET_LOADING", true);
       paperApi.list(this.page).then(res => {
         if (res.code == 200) {
-          this.page = res.data
+          this.page = res.data;
         }
-      })
+      });
     },
-    toUpdate (id) {
+    toUpdate(id) {
       // 打开弹窗，进行修改
-      this.dialogTitle = "创建试卷"
+      this.dialogTitle = "创建试卷";
       paperApi.get(id).then(res => {
         if (res.code == 200) {
-          this.paper = res.data
-          this.dialogFormVisible = true
+          this.paper = res.data;
+          this.dialogFormVisible = true;
         }
-      })
+      });
     },
-    toAdd () {
-      this.paper.paperId = ''
-      this.dialogTitle = "创建试卷"
-      this.dialogFormVisible = true
+    toAdd() {
+      this.paper.paperId = "";
+      this.dialogTitle = "创建试卷";
+      this.dialogFormVisible = true;
     },
-    deleteById (id) {
+    deleteById(id) {
       // 根据id删除
       this.$confirm("确定删除这条记录?", "提示", {
         confirmButtonText: "确定",
@@ -736,217 +743,221 @@ export default {
       }).then(() => {
         paperApi.delete(id).then(res => {
           if (res.code == 200) {
-            this.$message.success(res.msg)
-            this.list()
+            this.$message.success(res.msg);
+            this.list();
           }
-        })
-      })
+        });
+      });
     },
-    search () {
+    search() {
       this.list();
     },
-    getCollege () {
+    getCollege() {
       // 查询所有的学院，用于下拉列表
-      dictApi.all({ dictType: 'college' }).then(res => {
-        this.collegeList = res.data
-      })
+      dictApi.all({ dictType: "college" }).then(res => {
+        this.collegeList = res.data;
+      });
     },
-    getMajor (collegeId) {
-      if (collegeId == '') {
+    getMajor(collegeId) {
+      if (collegeId == "") {
         // 查询所有的专业，用于下拉列表
-        dictApi.all({ dictType: 'major' }).then(res => {
-          this.majorList = res.data
-        })
+        dictApi.all({ dictType: "major" }).then(res => {
+          this.majorList = res.data;
+        });
       } else {
         // 查询学院对应的专业，用于下拉列表
         dictApi.getByFather(collegeId).then(res => {
-          this.majorList = res.data
-        })
+          this.majorList = res.data;
+        });
       }
     },
-    getBank () {
+    getBank() {
       // 查询所有的题库，用于下拉列表
       bankApi.all().then(res => {
-        this.bankList = res.data
-      })
+        this.bankList = res.data;
+      });
     },
-    toHand (paper) {
-      this.testPage.params.bankId = paper.paperBank
-      this.config.configPaper = paper.paperId
-      this.getKnowledge(paper.paperBank)
-      this.getQuestionNum(paper.paperId)
+    toHand(paper) {
+      this.testPage.params.bankId = paper.paperBank;
+      this.config.configPaper = paper.paperId;
+      this.getKnowledge(paper.paperBank);
+      this.getQuestionNum(paper.paperId);
       // 打开手动组卷弹窗
-      this.dialogHand = true
+      this.dialogHand = true;
     },
-    searchQuestion () {
+    searchQuestion() {
       // 查询题目列表
-      this.$store.commit("SET_LOADING", true)
+      this.$store.commit("SET_LOADING", true);
       questionApi.search(this.testPage).then(res => {
-        this.testPage = res.data
+        this.testPage = res.data;
         // 设置试卷配置表的题型id和知识点id
-        this.config.configKnow = res.data.params.knowId
-        this.config.configType = res.data.params.typeId
-      })
+        this.config.configKnow = res.data.params.knowId;
+        this.config.configType = res.data.params.typeId;
+      });
     },
-    getKnowledge (bankId) {
+    getKnowledge(bankId) {
       // 查询所有知识点
       knowledgeApi.allByBank(bankId).then(res => {
-        this.knowList = res.data
+        this.knowList = res.data;
         if (this.knowList.length > 0) {
-          this.testPage.params.knowId = this.knowList[0].knowId
+          this.testPage.params.knowId = this.knowList[0].knowId;
         } else {
-          this.testPage.params.knowId = ''
+          this.testPage.params.knowId = "";
         }
-      })
+      });
     },
-    getType (knowId) {
+    getType(knowId) {
       // 查询所有题型
-      if (knowId == '') {
+      if (knowId == "") {
         typeApi.all().then(res => {
-          this.typeList = res.data
+          this.typeList = res.data;
           if (this.typeList.length > 0) {
-            this.testPage.params.typeId = this.typeList[0].typeId
+            this.testPage.params.typeId = this.typeList[0].typeId;
           } else {
-            this.testPage.params.typeId = ''
+            this.testPage.params.typeId = "";
           }
-        })
+        });
       } else {
         typeApi.allByKnow(knowId).then(res => {
-          this.typeList = res.data
+          this.typeList = res.data;
           if (this.typeList.length > 0) {
-            this.testPage.params.typeId = this.typeList[0].typeId
+            this.testPage.params.typeId = this.typeList[0].typeId;
           } else {
-            this.testPage.params.typeId = ''
+            this.testPage.params.typeId = "";
           }
-        })
+        });
       }
     },
-    addToPaper (questionId) {
+    addToPaper(questionId) {
       this.$confirm("确定加入到本试卷中?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "success"
       }).then(() => {
-        this.$store.commit("SET_LOADING", true)
-        if (questionId != '') {
+        this.$store.commit("SET_LOADING", true);
+        if (questionId != "") {
           // 设置一下题目的questionId
-          this.config.questionList = [{ questionId: questionId }]
+          this.config.questionList = [{ questionId: questionId }];
         }
         configApi.addToPaper(this.config).then(res => {
           if (res.code == 200) {
-            this.$message.success(res.msg)
-            this.getQuestionNum(this.config.configPaper)
+            this.$message.success(res.msg);
+            this.getQuestionNum(this.config.configPaper);
           }
-        })
-      })
+        });
+      });
     },
-    selectQuestion (questionList) {
+    selectQuestion(questionList) {
       // 多选框选择状态改变
-      let ids = questionList.map(x => { return { questionId: x.id } })
-      this.config.questionList = ids
+      let ids = questionList.map(x => {
+        return { questionId: x.id };
+      });
+      this.config.questionList = ids;
     },
-    getQuestionNum (paperId) {
+    getQuestionNum(paperId) {
       // 查询当前试卷的题目数量
       configApi.getQuestionNum(paperId).then(res => {
-        this.questionNumConfig = res.data
-      })
+        this.questionNumConfig = res.data;
+      });
     },
-    toUpdateQuestion (paper) {
+    toUpdateQuestion(paper) {
       // 跳转到修改题目也没
       this.$router.push({
-        name: 'paperQuestion',
+        name: "paperQuestion",
         params: {
           paperId: paper.paperId
         }
-      })
+      });
     },
-    submitPaper (paper) {
+    submitPaper(paper) {
       // 提交组卷
       this.$confirm("提交后不可修改，确定提交?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "success"
       }).then(() => {
-        this.$store.commit("SET_LOADING", true)
+        this.$store.commit("SET_LOADING", true);
         paperApi.submitPaper(paper.paperId).then(res => {
           if (res.code == 200) {
-            this.$message.success(res.msg)
-            this.list()
+            this.$message.success(res.msg);
+            this.list();
           }
-        })
-      })
-    },
-    downloadPaper (paper) {
-      // 下载试卷
-      location.href = paper.paperDownload
-    },
-    toRead (paper) {
-      // 预览试卷
-      open('http://view.officeapps.live.com/op/view.aspx?src=' + paper.paperDownload)
-    },
-    toGa (paper) {
-      // 打开智能组卷弹窗
-      this.gaPaper.paperId = paper.paperId
-      this.getKnowledge(paper.paperBank)
-      this.dialogGa = true
-    },
-    getGaType (ids) {
-      // 获取到选中的知识点，去查询题型
-      typeApi.allByKnowIds(ids).then(res => {
-        this.typeList = res.data
-      })
-    },
-    removeConfig (item) {
-      // 删除选项
-      var index = this.gaPaper.configList.indexOf(item)
-      if (index !== -1) {
-        this.gaPaper.configList.splice(index, 1)
-      }
-    },
-    addConfig () {
-      // 添加选项
-      this.gaPaper.configList.push({
-        "totalScore": 0,
-        "questionNum": 0,
-        "difficulty": 1,
-        "typeId": "",
-        "knowledgeIds": [
-        ]
+        });
       });
     },
-    gaSubmit () {
+    downloadPaper(paper) {
+      // 下载试卷
+      location.href = paper.paperDownload;
+    },
+    toRead(paper) {
+      // 预览试卷
+      open(
+        "http://view.officeapps.live.com/op/view.aspx?src=" +
+          paper.paperDownload
+      );
+    },
+    toGa(paper) {
+      // 打开智能组卷弹窗
+      this.gaPaper.paperId = paper.paperId;
+      this.getKnowledge(paper.paperBank);
+      this.dialogGa = true;
+    },
+    getGaType(ids) {
+      // 获取到选中的知识点，去查询题型
+      typeApi.allByKnowIds(ids).then(res => {
+        this.typeList = res.data;
+      });
+    },
+    removeConfig(item) {
+      // 删除选项
+      var index = this.gaPaper.configList.indexOf(item);
+      if (index !== -1) {
+        this.gaPaper.configList.splice(index, 1);
+      }
+    },
+    addConfig() {
+      // 添加选项
+      this.gaPaper.configList.push({
+        totalScore: 0,
+        questionNum: 0,
+        difficulty: 1,
+        typeId: "",
+        knowledgeIds: []
+      });
+    },
+    gaSubmit() {
       // 提交智能组卷
       this.$confirm("智能组卷提交后不可修改，确定提交?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "success"
       }).then(() => {
-        this.$store.commit("SET_LOADING", true)
+        this.$store.commit("SET_LOADING", true);
         paperApi.submitPaperGa(this.gaPaper).then(res => {
           if (res.code == 200) {
-            this.$message.success(res.msg)
-            this.dialogGa = false
-            this.list()
+            this.$message.success(res.msg);
+            this.dialogGa = false;
+            this.list();
           }
-        })
-      })
+        });
+      });
     },
-    getTypeNum (paper) {
+    getTypeNum(paper) {
       // 查看题型比例
       paperApi.typeNum(paper.paperId).then(res => {
-        this.typeNum.rows = res.data
-        this.dialogTypeNum = true
-      })
+        this.typeNum.rows = res.data;
+        this.dialogTypeNum = true;
+      });
     }
   },
-  created () {
-    this.list()
-    this.getCollege()
-    this.getBank()
-    this.getMajor('')
-    this.getType('')
+  created() {
+    this.list();
+    this.getCollege();
+    this.getBank();
+    this.getMajor("");
+    this.getType("");
   }
-}
+};
 </script>
 
 <style scoped>

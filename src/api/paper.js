@@ -48,7 +48,7 @@ export default {
   },
   submitPaperGa(gaPaper) {
     return request({
-      url: `/${group_name}/gaSubmit`,
+      url: `/studentPaperDO/gaExam`,
       method: 'post',
       data: gaPaper
     })

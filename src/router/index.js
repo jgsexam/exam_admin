@@ -154,6 +154,20 @@ export const constantRouterMap = [
         auth: 'ex:exam:list'
       },
       {
+        path: 'paper/:id',
+        name: 'paper',
+        component: () => import('@/views/components/exam/Paper'),
+        meta: { title: '试卷详情', icon: 'icon-shijuan' },
+        hidden: true
+      },
+      {
+        path: 'logs',
+        name: 'logs',
+        component: () => import('@/views/components/exam/LogList'),
+        meta: { title: '日志列表', icon: 'icon-shijuan' },
+        auth: 'ex:exam:list'
+      },
+      {
         path: 'room',
         name: 'room',
         component: () => import('@/views/components/exam/RoomList'),

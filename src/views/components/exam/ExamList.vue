@@ -1,3 +1,5 @@
+/* eslint-disable semi */
+/* eslint-disable semi */
 <template>
   <div>
     <div class="table-header">
@@ -41,7 +43,7 @@
       </el-form>
       <!-- 搜索部分结束 -->
 
-      <el-divider></el-divider>
+      <el-divider/>
       <el-button
         v-if="permission.indexOf('ex:exam:add') >= 0"
         type="primary"
@@ -52,11 +54,11 @@
 
     <!-- 列表开始 -->
     <el-table
+      v-loading="this.$store.getters.loading"
       :data="page.list"
       border
       stripe
       style="width: 100%"
-      v-loading="this.$store.getters.loading"
       size="mini"
       @sort-change="sortHandler"
     >
@@ -131,6 +133,14 @@
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
+                  v-if="scope.row.examState == 2"
+                  size="mini"
+                  type="success"
+                  @click="getStuPaperList(scope.row.examId)"
+                >查看试卷</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
                   v-if="permission.indexOf('ex:exam:info') >= 0"
                   size="mini"
                   type="primary"
@@ -153,6 +163,13 @@
                   @click="deleteById(scope.row.examId)"
                 >删除</el-button>
               </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
+                  size="mini"
+                  type="primary"
+                  @click="gennerateExamLog(scope.row.examId)"
+                >生成日志</el-button>
+              </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </template>
@@ -165,11 +182,11 @@
       <el-pagination
         :current-page="page.currentPage"
         :page-sizes="[10,15,20,30]"
-        @size-change="handleSizeChange"
         :page-size="page.currentCount"
-        @current-change="handleCurrentChange"
-        layout="total, sizes, prev, pager, next, jumper"
         :total="page.totalCount"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
       />
     </div>
     <!-- 分页组件结束 -->
@@ -262,9 +279,9 @@
     <el-dialog :visible.sync="dialogTeacherList" title="监考教师">
       <!-- 列表开始 -->
       <el-table
+        v-loading="this.$store.getters.loading"
         :data="examTeacherList"
         border
-        v-loading="this.$store.getters.loading"
         stripe
         style="width: 100%"
         size="mini"
@@ -304,31 +321,31 @@
         <!-- 搜索部分开始 -->
         <el-form :inline="true" :model="studentPage" class="demo-form-inline" size="mini">
           <el-form-item label="姓名">
-            <el-input v-model="studentPage.params.stuName" placeholder="学生名" clearable></el-input>
+            <el-input v-model="studentPage.params.stuName" placeholder="学生名" clearable/>
           </el-form-item>
           <el-form-item label="学号">
-            <el-input v-model="studentPage.params.stuNumber" placeholder="学号" clearable></el-input>
+            <el-input v-model="studentPage.params.stuNumber" placeholder="学号" clearable/>
           </el-form-item>
           <el-form-item label="性别">
-            <el-select clearable v-model="studentPage.params.stuSex" filterable placeholder="请选择">
-              <el-option key="1" label="男" value="1"></el-option>
-              <el-option key="2" label="女" value="2"></el-option>
+            <el-select v-model="studentPage.params.stuSex" clearable filterable placeholder="请选择">
+              <el-option key="1" label="男" value="1"/>
+              <el-option key="2" label="女" value="2"/>
             </el-select>
           </el-form-item>
           <el-form-item label="专业">
-            <el-select clearable v-model="studentPage.params.majorId" filterable placeholder="请选择">
+            <el-select v-model="studentPage.params.majorId" clearable filterable placeholder="请选择">
               <el-option
                 v-for="major in majorList"
                 :key="major.dictId"
                 :label="major.dictName"
                 :value="major.dictId"
-              ></el-option>
+              />
             </el-select>
           </el-form-item>
           <el-form-item label="学院">
             <el-select
-              clearable
               v-model="studentPage.params.collegeId"
+              clearable
               filterable
               placeholder="请选择"
             >
@@ -337,7 +354,7 @@
                 :key="college.dictId"
                 :label="college.dictName"
                 :value="college.dictId"
-              ></el-option>
+              />
             </el-select>
           </el-form-item>
           <el-form-item label="入学时间区间">
@@ -349,7 +366,7 @@
                 range-separator="至"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
-              ></el-date-picker>
+              />
             </div>
           </el-form-item>
           <el-form-item>
@@ -358,38 +375,38 @@
         </el-form>
         <!-- 搜索部分结束 -->
 
-        <hr />
+        <hr >
         <el-button
+          v-if="permission.indexOf('ex:exam:stu:add') >= 0"
           type="primary"
           size="mini"
           @click="addStudentBatch"
-          v-if="permission.indexOf('ex:exam:stu:add') >= 0"
         >添加</el-button>
       </div>
 
       <!-- 列表开始 -->
       <el-table
+        v-loading="this.$store.getters.loading"
         :data="studentPage.list"
         border
         stripe
         style="width: 100%"
-        @sort-change="sortStudentHandler"
         size="mini"
-        v-loading="this.$store.getters.loading"
+        @sort-change="sortStudentHandler"
         @selection-change="changeSelect"
       >
-        <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column prop="student.stuNumber" sortable="custom" label="学号"></el-table-column>
-        <el-table-column prop="student.stuName" sortable="custom" label="姓名"></el-table-column>
+        <el-table-column type="selection" width="55"/>
+        <el-table-column prop="student.stuNumber" sortable="custom" label="学号"/>
+        <el-table-column prop="student.stuName" sortable="custom" label="姓名"/>
         <el-table-column sortable="custom" label="性别">
           <template slot-scope="scope">
             <span>{{ scope.row.student.stuSex==1?'男':'女' }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="student.stuAge" sortable="custom" label="年龄"></el-table-column>
-        <el-table-column prop="student.major.dictName" sortable="custom" label="专业"></el-table-column>
-        <el-table-column prop="student.stuEntranceTime" sortable="custom" label="入学时间"></el-table-column>
-        <el-table-column prop="student.college.dictName" sortable="custom" label="学院"></el-table-column>
+        <el-table-column prop="student.stuAge" sortable="custom" label="年龄"/>
+        <el-table-column prop="student.major.dictName" sortable="custom" label="专业"/>
+        <el-table-column prop="student.stuEntranceTime" sortable="custom" label="入学时间"/>
+        <el-table-column prop="student.college.dictName" sortable="custom" label="学院"/>
 
         <el-table-column fixed="right" label="操作">
           <template slot-scope="scope">
@@ -407,14 +424,14 @@
       <!-- 分页组件开始 -->
       <div class="page-div">
         <el-pagination
-          @size-change="handleStudentSizeChange"
-          @current-change="handleStudentCurrentChange"
           :current-page="studentPage.currentPage"
           :page-sizes="[10,15,20,30]"
           :page-size="studentPage.currentCount"
-          layout="total, sizes, prev, pager, next, jumper"
           :total="studentPage.totalCount"
-        ></el-pagination>
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleStudentSizeChange"
+          @current-change="handleStudentCurrentChange"
+        />
       </div>
       <!-- 分页组件结束 -->
     </el-dialog>
@@ -424,24 +441,24 @@
     <el-dialog :visible.sync="dialogStudentList" title="考生" width="85%">
       <!-- 列表开始 -->
       <el-table
+        v-loading="this.$store.getters.loading"
         :data="examStudentList"
         border
-        v-loading="this.$store.getters.loading"
         stripe
         style="width: 100%"
         size="mini"
       >
-        <el-table-column prop="student.stuNumber" sortable="custom" label="学号"></el-table-column>
-        <el-table-column prop="student.stuName" sortable="custom" label="姓名"></el-table-column>
+        <el-table-column prop="student.stuNumber" sortable="custom" label="学号"/>
+        <el-table-column prop="student.stuName" sortable="custom" label="姓名"/>
         <el-table-column sortable="custom" label="性别">
           <template slot-scope="scope">
             <span>{{ scope.row.student.stuSex==1?'男':'女' }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="student.stuAge" sortable="custom" label="年龄"></el-table-column>
-        <el-table-column prop="student.major.dictName" sortable="custom" label="专业"></el-table-column>
-        <el-table-column prop="student.stuEntranceTime" sortable="custom" label="入学时间"></el-table-column>
-        <el-table-column prop="student.college.dictName" sortable="custom" label="学院"></el-table-column>
+        <el-table-column prop="student.stuAge" sortable="custom" label="年龄"/>
+        <el-table-column prop="student.major.dictName" sortable="custom" label="专业"/>
+        <el-table-column prop="student.stuEntranceTime" sortable="custom" label="入学时间"/>
+        <el-table-column prop="student.college.dictName" sortable="custom" label="学院"/>
         <el-table-column fixed="right" label="操作">
           <template slot-scope="scope" class="teacher-do">
             <el-button
@@ -460,42 +477,42 @@
     <!-- 考试信息开始 -->
     <el-dialog :visible.sync="dialogExamInfo" title="详情信息">
       <p>所用试卷：{{ examInfo.paper.paperTitle }}</p>
-      <el-divider></el-divider>
+      <el-divider/>
       <p>考试时间：{{ examInfo.examDate }}</p>
-      <el-divider></el-divider>
+      <el-divider/>
       <p>考试时长：{{ examInfo.examTime }} 分钟</p>
-      <el-divider></el-divider>
+      <el-divider/>
       <p>
         考试类型：
         <span v-if="examInfo.examType == 0">平常测试</span>
         <span v-if="examInfo.examType == 1">考试</span>
         <span v-if="examInfo.examType == 2">补考</span>
       </p>
-      <el-divider></el-divider>
+      <el-divider/>
       <p>考场：{{ examInfo.room.roomName }}</p>
-      <el-divider></el-divider>
+      <el-divider/>
       <p>监考教师：{{ examInfo.teacherList.length }} 名</p>
       <p>
         <span v-for="teacher in examInfo.teacherList" :key="teacher.ttId">
           <el-tag type="success">{{ teacher.teacher.teacherName }}</el-tag>&nbsp;
         </span>
       </p>
-      <el-divider></el-divider>
+      <el-divider/>
       <p>考生：{{ examInfo.studentList.length }} 名</p>
       <p>
         <span v-for="student in examInfo.studentList" :key="student.stId">
           <el-tag type="success">{{ student.student.stuName }}</el-tag>&nbsp;
         </span>
       </p>
-      <el-divider></el-divider>
+      <el-divider/>
       <p>备注：{{ examInfo.examComment }}</p>
     </el-dialog>
     <!-- 考试信息结束 -->
 
     <!-- 智能组卷弹窗 -->
-    <el-dialog title="智能组卷" :visible.sync="dialogGa">
-      <el-form :model="gaPaper" size="mini" v-loading="this.$store.getters.loading">
-        <el-form-item :inline="true" v-for="(config, index) in gaPaper.configList" :key="index">
+    <el-dialog :visible.sync="dialogGa" title="智能组卷">
+      <el-form v-loading="this.$store.getters.loading" :model="gaPaper" size="mini">
+        <el-form-item v-for="(config, index) in gaPaper.configList" :inline="true" :key="index">
           <div class="input-div">
             <h2 style="text-align: center;">题型 {{ index+1 }}</h2>
             <el-form-item label="难度系数" label-width="80px">
@@ -504,13 +521,13 @@
                 show-score
                 text-color="#ff9900"
                 score-template="{value}"
-              ></el-rate>
+              />
             </el-form-item>
             <el-form-item label="分值" label-width="80px">
-              <el-input v-model="config.totalScore" clearable placeholder="请输入分值"></el-input>
+              <el-input v-model="config.totalScore" clearable placeholder="请输入分值"/>
             </el-form-item>
             <el-form-item label="题量" label-width="80px">
-              <el-input v-model="config.questionNum" clearable placeholder="请输入题目数"></el-input>
+              <el-input v-model="config.questionNum" clearable placeholder="请输入题目数"/>
             </el-form-item>
             <el-form-item label="知识点" label-width="80px">
               <el-select
@@ -526,7 +543,7 @@
                   :key="know.knowId"
                   :label="know.knowName"
                   :value="know.knowId"
-                ></el-option>
+                />
               </el-select>
             </el-form-item>
             <el-form-item label="题型" label-width="80px">
@@ -536,11 +553,11 @@
                   :key="type.typeId"
                   :label="type.typeName"
                   :value="type.typeId"
-                ></el-option>
+                />
               </el-select>
             </el-form-item>
             <div class="delete-div">
-              <el-button @click.prevent="removeConfig(config)" type="danger">删除</el-button>
+              <el-button type="danger" @click.prevent="removeConfig(config)">删除</el-button>
             </div>
           </div>
         </el-form-item>
@@ -553,6 +570,36 @@
       </el-form>
     </el-dialog>
     <!-- 智能组卷弹窗结束 -->
+
+    <!-- 查看试卷弹窗开始 -->
+    <el-dialog
+      :visible.sync="dialogPaperList"
+      title="查看试卷"
+      width="85%"
+    >
+      <el-table
+        v-loading="this.$store.getters.loading"
+        :data="examPaperList"
+        border
+        stripe
+        style="width: 100%"
+        size="mini"
+      >
+        <el-table-column prop="paperTitle" sortable="custom" label="试卷标题"/>
+        <el-table-column prop="student.stuName" sortable="custom" label="考生"/>
+
+        <el-table-column prop="exam.examCreateTime" sortable="custom" label="开考时间"/>
+        <el-table-column prop="paperScore" sortable="custom" label="总分"/>
+        <el-table-column prop="paperStudentScore" sortable="custom" label="考生分数"/>
+        <!-- <el-table-column prop="student.college.dictName" sortable="custom" label="学院"/> -->
+        <el-table-column fixed="right" label="操作">
+          <template slot-scope="scope" class="teacher-do">
+            <el-button size="mini" type="primary" @click="handleCheckPaperDetail(scope.row.paperId)" >查看详细<i class="el-icon-view el-icon--right" /></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
+    <!-- 查看试卷弹窗结束 -->
   </div>
 </template>
 <script>
@@ -563,10 +610,10 @@ import examStudentApi from '@/api/examStudent'
 import teacherApi from '@/api/teacher'
 import roomApi from '@/api/room'
 import paperApi from '@/api/paper'
-import typeApi from "@/api/type"
-import knowledgeApi from "@/api/knowledge"
+import typeApi from '@/api/type'
+import knowledgeApi from '@/api/knowledge'
 export default {
-  data () {
+  data() {
     return {
       permission: this.$store.getters.auths,
       dialogFormVisible: false, // 弹出层隐藏
@@ -575,6 +622,7 @@ export default {
       dialogTeacherList: false, // 监考教师弹窗
       dialogExamInfo: false, // 考试详情弹窗
       dialogStudentList: false, // 考生弹窗
+      dialogPaperList: false, // 考生考卷弹窗
       timeInterval: null, // 学年度时间区间数组
       dialogGa: false, // 智能组卷弹窗
       dialogTitle: '新增教室',
@@ -585,13 +633,13 @@ export default {
         totalPage: null,
         sortName: '',
         sortOrder: 'asc',
-        params: {
-        },
+        params: {},
         list: []
       },
       roomList: [], // 考场列表
       paperList: [], // 试卷列表
       teacherList: [], // 教师列表
+      examPaperList: [], // 考生试卷列表
       exam: {}, // 考试
       examTeacher: {}, // 监考教师
       examTeacherList: [], // 监考教师列表
@@ -613,31 +661,36 @@ export default {
       selectIds: [], // 被选中的学生id
       examStudent: {}, // 考生
       examStudentList: [], // 考生列表
-      examInfo: { // 考试详情
+      examInfo: {
+        // 考试详情
         paper: {},
         room: {},
         studentList: [],
         teacherList: []
       },
-      gaPaper: { // 智能组卷
+      gaPaper: {
+        // 智能组卷
         paperId: '', // 试卷id
-        configList: [ // 配置列表
+        examId: '',
+        stuId: [],
+        configList: [
+          // 配置列表
           {
             totalScore: 0, // 总分
             questionNum: 0, // 题目数
             difficulty: 1, // 难度
             typeId: '', // 题型
-            knowledgeIds: [ // 知识点列表
-
+            knowledgeIds: [
+              // 知识点列表
             ]
           }
         ]
       },
       knowList: [], // 知识点列表
-      typeList: [], // 题型列表
+      typeList: [] // 题型列表
     }
   },
-  created () {
+  created() {
     this.list()
     this.getPaperList()
     this.getMajor()
@@ -645,33 +698,39 @@ export default {
     this.getType('')
   },
   methods: {
-    handleSizeChange (val) {
+    handleCheckPaper() {
+      this.dialogPaperList = true
+    },
+    handleSizeChange(val) {
       this.page.currentCount = val
       this.list()
     },
-    handleCurrentChange (val) {
+    handleCurrentChange(val) {
       this.page.currentPage = val
       this.list()
     },
-    sortHandler (column) { // 排序查询
+    sortHandler(column) {
+      // 排序查询
       this.page.sortName = column.prop
       this.page.sortOrder = column.order
       this.list()
     },
-    handleStudentSizeChange (val) {
+    handleStudentSizeChange(val) {
       this.studentPage.currentCount = val
       this.getStudentPage()
     },
-    handleStudentCurrentChange (val) {
+    handleStudentCurrentChange(val) {
       this.studentPage.currentPage = val
       this.getStudentPage()
     },
-    sortStudentHandler (column) { // 排序查询
+    sortStudentHandler(column) {
+      // 排序查询
       this.studentPage.sortName = column.prop
       this.studentPage.sortOrder = column.order
       this.getStudentPage()
     },
-    save () { // 保存或修改
+    save() {
+      // 保存或修改
       if (this.exam.examId == '') {
         examApi.save(this.exam).then(res => {
           if (res.code == 200) {
@@ -690,7 +749,8 @@ export default {
         })
       }
     },
-    list () { // 分页查询
+    list() {
+      // 分页查询
       this.exam.examId = ''
       this.$store.commit('SET_LOADING', true)
       if (this.timeInterval != null) {
@@ -706,19 +766,47 @@ export default {
         }
       })
     },
-    getRoomList (id) {
+    gennerateExamLog(examId) { // 生成考试日志
+
+      examApi.gennerateLog(examId)
+        .then(res => {
+          if (res.code === 200) {
+            this.$message.success('生成日志成功')
+          } else {
+            this.$message.error(res.msg)
+          }
+        })
+    },
+    handleCheckPaperDetail(paperId) {
+      this.$router.push(`/exam/paper/${paperId}`)
+    },
+    getStuPaperList(examId) { // 获取本场考试所有学生的试卷
+
+      examApi.stuPaperList(examId).then(res => {
+        if (res.code === 200) {
+          this.examPaperList = res.data.list
+          this.dialogPaperList = true
+
+          // this.getRoomList(res.data.examRoom)
+          // this.dialogTitle = '修改考试'
+          // this.dialogFormVisible = true
+        }
+      })
+    },
+    getRoomList(id) {
       // 查询空闲教室
       roomApi.free(id).then(res => {
         this.roomList = res.data
       })
     },
-    getPaperList () {
+    getPaperList() {
       // 获取所有的试卷
       paperApi.all().then(res => {
         this.paperList = res.data
       })
     },
-    toUpdate (id) { // 打开弹窗，进行修改
+    toUpdate(id) {
+      // 打开弹窗，进行修改
       // 根据id查询
       examApi.get(id).then(res => {
         if (res.code == 200) {
@@ -729,12 +817,12 @@ export default {
         }
       })
     },
-    toAdd () {
+    toAdd() {
       this.getRoomList(null)
       this.dialogTitle = '创建考试'
       this.dialogFormVisible = true
     },
-    deleteById (id) {
+    deleteById(id) {
       this.$confirm('确定删除这条记录?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -750,33 +838,33 @@ export default {
         })
       })
     },
-    getFreeTeacherList () {
+    getFreeTeacherList() {
       // 查询空闲教师列表
       teacherApi.freeList().then(res => {
         this.teacherList = res.data
       })
     },
-    getTeacherList (examId) {
+    getTeacherList(examId) {
       // 查看监考教师
       examTeacherApi.getList(examId).then(res => {
         this.examTeacherList = res.data
         this.dialogTeacherList = true
       })
     },
-    getStudentList (examId) {
+    getStudentList(examId) {
       // 查看考生
       examStudentApi.getList(examId).then(res => {
         this.examStudentList = res.data
         this.dialogStudentList = true
       })
     },
-    toAddTeacher (examId) {
+    toAddTeacher(examId) {
       // 打开添加监考教师弹窗
       this.examTeacher.ttExam = examId
       this.getFreeTeacherList()
       this.dialogAddTeacher = true
     },
-    addTeacher () {
+    addTeacher() {
       // 添加监考教师
       this.$store.commit('SET_LOADING', true)
       examTeacherApi.save(this.examTeacher).then(res => {
@@ -785,7 +873,7 @@ export default {
         this.getTeacherList(this.examTeacher.ttExam)
       })
     },
-    deleteTeacherById (id, examId) {
+    deleteTeacherById(id, examId) {
       // 根据id删除
       this.$confirm('确定取消该教师的监考资格吗?', '提示', {
         confirmButtonText: '确定',
@@ -802,7 +890,7 @@ export default {
         })
       })
     },
-    deleteStudentById (id, examId) {
+    deleteStudentById(id, examId) {
       // 根据id删除
       this.$confirm('确定取消该考生的考试资格吗?', '提示', {
         confirmButtonText: '确定',
@@ -819,38 +907,38 @@ export default {
         })
       })
     },
-    getStudentPage () {
+    getStudentPage() {
       // 分页查询不在本场考试中的学生
       if (this.timeInterval != null) {
-        this.studentPage.params.startTime = this.timeInterval[0];
-        this.studentPage.params.endTime = this.timeInterval[1];
+        this.studentPage.params.startTime = this.timeInterval[0]
+        this.studentPage.params.endTime = this.timeInterval[1]
       } else {
-        this.studentPage.params.startTime = "";
-        this.studentPage.params.endTime = "";
+        this.studentPage.params.startTime = ''
+        this.studentPage.params.endTime = ''
       }
       examStudentApi.list(this.studentPage).then(res => {
         this.studentPage = res.data
         this.dialogAddStudent = true
       })
     },
-    toAddStudent (examId) {
+    toAddStudent(examId) {
       // 分页插叙不在本场考试中的学生，并且打开弹窗
       this.studentPage.params.examId = examId
       this.getStudentPage()
     },
-    getCollege () {
+    getCollege() {
       // 查询学院
-      dictApi.all({ dictType: "college" }).then(res => {
-        this.collegeList = res.data;
-      });
+      dictApi.all({ dictType: 'college' }).then(res => {
+        this.collegeList = res.data
+      })
     },
-    getMajor () {
+    getMajor() {
       // 查询学院
-      dictApi.all({ dictType: "major" }).then(res => {
-        this.majorList = res.data;
-      });
+      dictApi.all({ dictType: 'major' }).then(res => {
+        this.majorList = res.data
+      })
     },
-    addStudent (stuId) {
+    addStudent(stuId) {
       // 将学生加入进考试
       // 构造数据
       this.examStudent.stStu = stuId
@@ -860,19 +948,23 @@ export default {
         this.getStudentPage(this.examStudent.stExam)
       })
     },
-    addStudentBatch () {
+    addStudentBatch() {
       // 批量添加学生
-      examStudentApi.saveList(this.selectIds, this.studentPage.params.examId).then(res => {
-        this.$message.success(res.msg)
-        this.getStudentPage(this.examStudent.stExam)
-      })
+      examStudentApi
+        .saveList(this.selectIds, this.studentPage.params.examId)
+        .then(res => {
+          this.$message.success(res.msg)
+          this.getStudentPage(this.examStudent.stExam)
+        })
     },
-    changeSelect (list) {
+    changeSelect(list) {
       // 多选框选择状态改变
-      let ids = list.map(x => { return x.student.stuId })
+      const ids = list.map(x => {
+        return x.student.stuId
+      })
       this.selectIds = ids
     },
-    getInfo (examId) {
+    getInfo(examId) {
       // 获取考试详情
       this.$store.commit('SET_LOADING', true)
       examApi.info(examId).then(res => {
@@ -880,32 +972,43 @@ export default {
         this.dialogExamInfo = true
       })
     },
-    createPaper (exam) {
+    async createPaper(exam) {
       // 根据id删除
-      this.$confirm('该功能会为每一位学生生成不同的试卷，已生成试卷的学生不会重复生成，生成过程比较漫长，是否等待?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'primary'
-      }).then(() => {
-        // 打开智能组卷弹窗
-        this.gaPaper.paperId = exam.paper.paperId
-        this.getKnowledge(exam.paper.paperBank)
-        this.dialogGa = true
-      })
+
+      await this.$confirm(
+        '该功能会为每一位学生生成不同的试卷，已生成试卷的学生不会重复生成，生成过程比较漫长，是否等待?',
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'primary'
+        }
+      )
+
+      console.log('exam', exam)
+      this.gaPaper.paperId = exam.paper.paperId
+      this.gaPaper.examId = exam.examId
+      const stuList = (await examStudentApi.getList(exam.examId)).data.map(
+        s => s.student.stuId
+      )
+      this.gaPaper.stuId = stuList
+      this.getKnowledge(exam.paper.paperBank)
+      this.dialogGa = true
     },
-    getGaType (ids) {
+    getGaType(ids) {
       // 获取到选中的知识点，去查询题型
       typeApi.allByKnowIds(ids).then(res => {
         this.typeList = res.data
       })
     },
-    getKnowledge (bankId) {
+    getKnowledge(bankId) {
       // 查询所有知识点
+      console.log('123')
       knowledgeApi.allByBank(bankId).then(res => {
         this.knowList = res.data
       })
     },
-    getType (knowId) {
+    getType(knowId) {
       // 查询所有题型
       if (knowId == '') {
         typeApi.all().then(res => {
@@ -917,39 +1020,39 @@ export default {
         })
       }
     },
-    removeConfig (item) {
+    removeConfig(item) {
       // 删除选项
       var index = this.gaPaper.configList.indexOf(item)
       if (index !== -1) {
         this.gaPaper.configList.splice(index, 1)
       }
     },
-    addConfig () {
+    addConfig() {
       // 添加选项
       this.gaPaper.configList.push({
-        "totalScore": 0,
-        "questionNum": 0,
-        "difficulty": 1,
-        "typeId": "",
-        "knowledgeIds": [
-        ]
-      });
+        totalScore: 0,
+        questionNum: 0,
+        difficulty: 1,
+        typeId: '',
+        knowledgeIds: []
+      })
     },
-    gaSubmit () {
+    gaSubmit() {
       // 提交智能组卷
-      this.$confirm("智能组卷提交后不可修改，确定提交?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "success"
+      console.log('gaPaper')
+
+      this.$confirm('智能组卷提交后不可修改，确定提交?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success'
       }).then(() => {
-        console.log(this,gaPaper)
-        /* paperApi.submitPaperGa(this.gaPaper).then(res => {
+        paperApi.submitPaperGa(this.gaPaper).then(res => {
           if (res.code == 200) {
             this.$message.success(res.msg)
             this.dialogGa = false
             this.list()
           }
-        }) */
+        })
       })
     }
   }
